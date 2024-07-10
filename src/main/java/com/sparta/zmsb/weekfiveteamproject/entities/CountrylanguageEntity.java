@@ -1,58 +1,64 @@
 package com.sparta.zmsb.weekfiveteamproject.entities;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Embeddable;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
-import org.hibernate.Hibernate;
 import org.hibernate.annotations.ColumnDefault;
 
-import java.io.Serializable;
-import java.util.Objects;
+import java.math.BigDecimal;
 
-@Embeddable
-public class CountrylanguageEntity implements Serializable {
-    private static final long serialVersionUID = 2583634168421130251L;
-    @Size(max = 3)
-    @NotNull
+@Entity
+@Table(name = "countrylanguage", schema = "world")
+public class CountrylanguageEntity {
+    @EmbeddedId
+    private CountrylanguageEntityId id;
+
+    @MapsId("countryCode")
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @ColumnDefault("''")
-    @Column(name = "CountryCode", nullable = false, length = 3)
-    private String countryCode;
+    @JoinColumn(name = "CountryCode", nullable = false)
+    private CountryEntity countryCode;
 
-    @Size(max = 30)
     @NotNull
-    @ColumnDefault("''")
-    @Column(name = "Language", nullable = false, length = 30)
-    private String language;
+    @ColumnDefault("'F'")
+    @Lob
+    @Column(name = "IsOfficial", nullable = false)
+    private String isOfficial;
 
-    public String getCountryCode() {
+    @NotNull
+    @ColumnDefault("0.0")
+    @Column(name = "Percentage", nullable = false, precision = 4, scale = 1)
+    private BigDecimal percentage;
+
+    public CountrylanguageEntityId getId() {
+        return id;
+    }
+
+    public void setId(CountrylanguageEntityId id) {
+        this.id = id;
+    }
+
+    public CountryEntity getCountryCode() {
         return countryCode;
     }
 
-    public void setCountryCode(String countryCode) {
+    public void setCountryCode(CountryEntity countryCode) {
         this.countryCode = countryCode;
     }
 
-    public String getLanguage() {
-        return language;
+    public String getIsOfficial() {
+        return isOfficial;
     }
 
-    public void setLanguage(String language) {
-        this.language = language;
+    public void setIsOfficial(String isOfficial) {
+        this.isOfficial = isOfficial;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        CountrylanguageEntityId entity = (CountrylanguageEntityId) o;
-        return Objects.equals(this.countryCode, entity.countryCode) &&
-                Objects.equals(this.language, entity.language);
+    public BigDecimal getPercentage() {
+        return percentage;
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(countryCode, language);
+    public void setPercentage(BigDecimal percentage) {
+        this.percentage = percentage;
     }
 
 }
