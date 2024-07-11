@@ -2,13 +2,14 @@ package com.sparta.zmsb.weekfiveteamproject.service;
 
 import com.sparta.zmsb.weekfiveteamproject.entities.CityEntity;
 import com.sparta.zmsb.weekfiveteamproject.entities.CountryEntity;
+import com.sparta.zmsb.weekfiveteamproject.entities.CountrylanguageEntity;
 import com.sparta.zmsb.weekfiveteamproject.repositories.CityRepository;
-import com.sparta.zmsb.weekfiveteamproject.repositories.CountryLanguageIDRepository;
 import com.sparta.zmsb.weekfiveteamproject.repositories.CountryLanguageRepository;
 import com.sparta.zmsb.weekfiveteamproject.repositories.CountryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -18,18 +19,27 @@ public class WorldService {
     private final CityRepository cityRepository;
     private final CountryRepository countryRepository;
     private final CountryLanguageRepository countryLanguageRepository;
-    private final CountryLanguageIDRepository countryLanguageIDRepository;
+
 
     @Autowired
     public WorldService(CityRepository cityRepository, CountryRepository countryRepository,
-                        CountryLanguageRepository countryLanguageRepository,
-                        CountryLanguageIDRepository countryLanguageIDRepository) {
+                        CountryLanguageRepository countryLanguageRepository) {
 
         this.cityRepository = cityRepository;
         this.countryRepository = countryRepository;
         this.countryLanguageRepository = countryLanguageRepository;
-        this.countryLanguageIDRepository = countryLanguageIDRepository;
 
+    }
+
+    public String countriesWithNoHeadOfState() {
+        List<CountryEntity> countries = allCountries();
+
+        List<String> countriesWithNoHeadOfState = countries.stream()
+                .filter(country -> country.getHeadOfState() == null || country.getHeadOfState().isEmpty())
+                .map(CountryEntity::getName)
+                .collect(Collectors.toList());
+
+        return String.join(", ", countriesWithNoHeadOfState);
     }
 
     public String whichCountryHasMostCities(){
@@ -76,6 +86,30 @@ public class WorldService {
         }
     }
 
+    public int amountOfPeopleSpeakingOfficialLanguage(String countryCode) {
+        List<CountrylanguageEntity> languages = countryLanguageRepository.findByCountryCode(countryCode);
+
+        Optional<CountrylanguageEntity> mostPopularLanguage = languages.stream()
+                .filter(language -> language.getIsOfficial().equals("T"))
+                .max(Comparator.comparing(CountrylanguageEntity::getPercentage));
+
+        if (mostPopularLanguage.isPresent()) {
+            BigDecimal languagePercentage = mostPopularLanguage.get().getPercentage();
+            float populationPercentage = languagePercentage.floatValue() / 100;
+
+            Optional<CountryEntity> countryEntityOptional = countryRepository.findByCode(countryCode);
+            if (countryEntityOptional.isPresent()) {
+                CountryEntity countryEntity = countryEntityOptional.get();
+                int countryPopulation = countryEntity.getPopulation();
+                return Math.round(populationPercentage * countryPopulation);
+            } else {
+                return 0;
+            }
+        } else {
+            return 0;
+        }
+    }
+
     public List<CountryEntity> allCountries(){
         return countryRepository.findAll();
     }
@@ -91,8 +125,5 @@ public class WorldService {
     }
     public CountryLanguageRepository getCountryLanguageRepository() {
         return countryLanguageRepository;
-    }
-    public CountryLanguageIDRepository getCountryLanguageIDRepository() {
-        return countryLanguageIDRepository;
     }
 }
