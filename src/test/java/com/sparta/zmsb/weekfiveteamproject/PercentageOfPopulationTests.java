@@ -50,7 +50,8 @@ public class PercentageOfPopulationTests {
     @Transactional
     @DisplayName("Given tables of countries and cities then return country with most cities")
     void returnCountryWithMostCities() {
-        String expected = "China";
+        String expected = "The country with the most cities is China.\n" +
+                "China has a total of 363 cities.";
         String actual = worldService.whichCountryHasMostCities();
         Assertions.assertEquals(expected,actual);
     }

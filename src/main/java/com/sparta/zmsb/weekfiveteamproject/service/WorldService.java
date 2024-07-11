@@ -32,15 +32,29 @@ public class WorldService {
 
     public String whichCountryHasMostCities(){
 
+        StringBuilder output = new StringBuilder();
         List<CityEntity> cities = allCities();
         Map<String , Long> mostCitiesCount = cities.stream()
                 .collect(Collectors.groupingBy(
                         c -> c.getCountryCode().getName()
                         , Collectors.counting()));
 
-        return mostCitiesCount.entrySet().stream()
+        String countryName = mostCitiesCount.entrySet().stream()
                 .max(Map.Entry.comparingByValue())
                 .map(Map.Entry::getKey).orElse("");
+
+        Long noOfCities = mostCitiesCount.entrySet().stream()
+                .max(Map.Entry.comparingByValue())
+                .map(Map.Entry::getValue).orElse(0L);
+
+        output.append("The country with the most cities is ")
+                .append(countryName)
+                .append(".\n")
+                .append(countryName)
+                .append(" has a total of ")
+                .append(noOfCities).append(" cities.");
+        return output.toString();
+
     }
 
     public double percentageOfGivenCountriesPopulationThatLivesInTheLargestCity(String countryName){
