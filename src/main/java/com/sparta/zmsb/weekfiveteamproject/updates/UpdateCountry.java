@@ -11,8 +11,7 @@ public class UpdateCountry {
     public static <T> CountryEntity updateCountry(T updatedValue, String flag, CountryEntity countryEntity) {
         switch (flag) {
             case "Name" -> countryEntity.setName(updatedValue.toString());
-            case "Code" -> countryEntity.setCode(updatedValue.toString());
-            case "population" -> countryEntity.setPopulation(((Integer) updatedValue));
+            case "Population" -> countryEntity.setPopulation(((Integer) updatedValue));
             case "Continent" -> countryEntity.setContinent(updatedValue.toString());
             case "Region" -> countryEntity.setRegion(updatedValue.toString());
             case "SurfaceArea" -> countryEntity.setSurfaceArea((BigDecimal) updatedValue);
