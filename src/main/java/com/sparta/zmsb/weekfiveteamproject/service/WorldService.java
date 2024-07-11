@@ -8,6 +8,7 @@ import com.sparta.zmsb.weekfiveteamproject.repositories.CountryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.lang.reflect.Array;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -89,20 +90,41 @@ public class WorldService {
         return countryLanguageRepository;
     }
 
-    public ArrayList<CityEntity> getSmallestDistrictsByPopulation() {
+    public String getSmallestDistrictsByPopulation() {
         List<CityEntity> cities = allCities();
-        ArrayList<CityEntity> sortedCities;
-        ArrayList<CityEntity> sortedSmallestDistricts = new ArrayList<>();
-        Comparator<CityEntity> comparator = Comparator.comparing(CityEntity::getPopulation);
-        sortedCities = cities.stream().sorted(comparator).collect(Collectors.toCollection(ArrayList<CityEntity>::new));
-        for (int i = 0; i < 5; i++) {
-            sortedSmallestDistricts.add(sortedCities.get(i));
+        LinkedHashMap<String, Integer> districtPopulations = new LinkedHashMap<>();
+
+        for (CityEntity city : cities) {
+            if (districtPopulations.containsKey(city.getDistrict())) {
+                districtPopulations.put(city.getDistrict(), districtPopulations.get(city.getDistrict()) + city.getPopulation());
+            } else {
+                districtPopulations.put(city.getDistrict(), city.getPopulation());
+            }
         }
 
-        return sortedSmallestDistricts;
+        ArrayList<Map.Entry<String, Integer>> sortedDistricts = new ArrayList<>(districtPopulations.entrySet());
+        sortedDistricts.sort(Map.Entry.comparingByValue());
+
+        StringBuilder smallestDistricts = new StringBuilder();
+
+        for (int i = 0; i < 5; i++) {
+            smallestDistricts.append(sortedDistricts.get(i).getKey()).append(", ");
+        }
+
+        smallestDistricts.delete(smallestDistricts.length() - 2, smallestDistricts.length());
+
+        return String.valueOf(smallestDistricts);
     }
 
-    public int getNumberOfCitiesThatCountryWithHighestNumberOfCitiesHas() {
-        return 1;
+    public long getNumberOfCitiesThatCountryWithHighestNumberOfCitiesHas() {
+        List<CityEntity> cities = allCities();
+        Map<String , Long> mostCitiesCount = cities.stream()
+                .collect(Collectors.groupingBy(
+                        c -> c.getCountryCode().getName()
+                        , Collectors.counting()));
+
+        return mostCitiesCount.entrySet().stream()
+                .max(Map.Entry.comparingByValue())
+                .map(Map.Entry::getValue).get();
     }
 }
