@@ -11,8 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 
-import java.math.BigDecimal;
-import java.lang.reflect.Array;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -32,7 +30,17 @@ public class WorldService {
         this.cityRepository = cityRepository;
         this.countryRepository = countryRepository;
         this.countryLanguageRepository = countryLanguageRepository;
+    }
 
+    @Transactional
+    public void deleteCity(Integer id) {
+        Optional<CityEntity> cityOptional = cityRepository.findById(id);
+
+        if (cityOptional.isPresent()) {
+            cityRepository.delete(cityOptional.get());
+        } else {
+            throw new RuntimeException("City with id " + id + " not found");
+        }
     }
 
     public List<CountryEntity> countriesWithNoHeadOfState() {
@@ -160,6 +168,7 @@ public class WorldService {
     public List<CountrylanguageEntity> allLanguages(){
         return countryLanguageRepository.findAll();
     }
+
   
     public String getSmallestDistrictsByPopulation() {
         List<CityEntity> cities = allCities();
