@@ -1,9 +1,11 @@
 package com.sparta.zmsb.weekfiveteamproject;
 
 import com.sparta.zmsb.weekfiveteamproject.entities.CityEntity;
+import com.sparta.zmsb.weekfiveteamproject.entities.CountryEntity;
 import com.sparta.zmsb.weekfiveteamproject.repositories.CityRepository;
 import com.sparta.zmsb.weekfiveteamproject.service.WorldService;
 import com.sparta.zmsb.weekfiveteamproject.updates.CityUpdate;
+import com.sparta.zmsb.weekfiveteamproject.updates.CreateCity;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -28,6 +30,9 @@ public class CRUDTestsForCityEntity {
 
     @InjectMocks
     private CityUpdate cityUpdate;
+
+    @InjectMocks
+    private CreateCity createCity;
 
     @Test
     @DisplayName("Check that updateCity updates the city correctly")
@@ -90,5 +95,26 @@ public class CRUDTestsForCityEntity {
         Assertions.assertThrows(RuntimeException.class, () -> {
             worldServiceWithMocks.deleteCity(1);
         });
+    }
+
+    @Test
+    @DisplayName("Check that createCity creates a new city entity")
+    void createCityCreatesNewCityEntity() {
+        String cityName = "Utopia";
+        String districtName = "UTP";
+        int population = 5353;
+
+        Mockito.when(cityRepository.save(Mockito.any(CityEntity.class))).thenAnswer(invocation -> {
+            CityEntity city = invocation.getArgument(0);
+            city.setId(1);
+            return city;
+        });
+
+        CountryEntity countryCode = new CountryEntity();
+        CityEntity createdCity = CreateCity.createCity(cityName, countryCode, districtName, population);
+
+        Assertions.assertEquals(cityName, createdCity.getName());
+        Assertions.assertEquals(districtName, createdCity.getDistrict());
+        Assertions.assertEquals(population, createdCity.getPopulation());
     }
 }
