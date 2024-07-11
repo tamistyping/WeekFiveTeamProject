@@ -16,9 +16,18 @@ public class AmountOfPeopleSpeakingOfficialLanguageTests {
 
     @Test
     void testAmountOfPeopleSpeakingOfficialLanguage() {
-        String countryCode = "USA";
-        int population = worldService.amountOfPeopleSpeakingOfficialLanguage(countryCode);
-        System.out.println("Population speaking official language in " + countryCode + ": " + population);
+        String countryName = "United States";
+        int population = worldService.amountOfPeopleSpeakingOfficialLanguage(countryName);
+        System.out.println("Population speaking official language in " + countryName + ": " + population);
+        Assertions.assertNotEquals(0, population, "Population should not be zero");
+    }
+
+    @Test
+    void testAmountOfPeopleSpeakingOfficialLanguageInFrance() {
+        String countryName = "France";
+        int population = worldService.amountOfPeopleSpeakingOfficialLanguage(countryName);
+        System.out.println("Population speaking official language in " + countryName + ": " + population);
+        Assertions.assertNotEquals(0, population, "Population should not be zero");
     }
 
     @Test
