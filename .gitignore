@@ -4,6 +4,7 @@ resources/
 # Log file
 *.log
 *.properties
+/application.properties
 
 # Package Files #
 *.jar
