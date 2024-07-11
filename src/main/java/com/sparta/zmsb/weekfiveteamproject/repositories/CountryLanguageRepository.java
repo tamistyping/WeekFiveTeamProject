@@ -8,5 +8,4 @@ import java.util.List;
 
 @Repository
 public interface CountryLanguageRepository extends JpaRepository<CountrylanguageEntity, Integer> {
-    List<CountrylanguageEntity> findByCountryCode(String countryCode);
 }
