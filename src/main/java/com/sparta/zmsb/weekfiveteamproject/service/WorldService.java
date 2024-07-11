@@ -10,6 +10,8 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+
+import java.math.BigDecimal;
 import java.lang.reflect.Array;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -23,14 +25,18 @@ public class WorldService {
 
     @Autowired
     public WorldService(CityRepository cityRepository, CountryRepository countryRepository,
-
-                        CountryLanguageRepository countryLanguageRepository
-                        ) {
+                        CountryLanguageRepository countryLanguageRepository) {
       
         this.cityRepository = cityRepository;
         this.countryRepository = countryRepository;
         this.countryLanguageRepository = countryLanguageRepository;
 
+    }
+
+    public List<CountryEntity> countriesWithNoHeadOfState() {
+        return countryRepository.findAll().stream()
+                .filter(country -> country.getHeadOfState() == null || country.getHeadOfState().isBlank())
+                .collect(Collectors.toList());
     }
 
     @Transactional
@@ -90,6 +96,59 @@ public class WorldService {
                 .isEmpty();
     }
 
+    public int amountOfPeopleSpeakingOfficialLanguage(String countryName) {
+        List<CountryEntity> countries = allCountries();
+
+        String countryCode = countries.stream()
+                .filter(cE -> cE.getName().equals(countryName))
+                .map(CountryEntity::getCode)
+                .findFirst()
+                .orElse("Name not found");
+
+        if ("Name not found".equals(countryCode)) {
+            return 0;
+        }
+
+        int population = countries.stream()
+                .filter(cE -> cE.getCode().equals(countryCode))
+                .findFirst()
+                .map(CountryEntity::getPopulation)
+                .orElse(0);
+
+        List<CountrylanguageEntity> officialLanguages = officialLanguagesOfCountry(countryCode);
+        Optional<CountrylanguageEntity> mostSpoken = mostSpokenLanguageInCountry(officialLanguages);
+
+        if (mostSpoken.isPresent()) {
+            return (int) (population * mostSpoken.get().getPercentage().doubleValue() / 100);
+        } else {
+            return 0;
+        }
+    }
+
+    private List<CountrylanguageEntity> officialLanguagesOfCountry(String countryCode) {
+        List<CountrylanguageEntity> languages = countryLanguageRepository.findAll();
+        List<CountrylanguageEntity> officialLanguages = new ArrayList<>();
+        for (CountrylanguageEntity language : languages) {
+            if (language.getId().getCountryCode().equals(countryCode) && language.getIsOfficial().equals("T")) {
+                officialLanguages.add(language);
+            }
+        }
+        return officialLanguages;
+    }
+
+    private Optional<CountrylanguageEntity> mostSpokenLanguageInCountry(List<CountrylanguageEntity> languages) {
+        if (languages.isEmpty()) {
+            return Optional.empty();
+        }
+        CountrylanguageEntity mostSpokenLanguage = languages.get(0);
+        for (CountrylanguageEntity language : languages) {
+            if (language.getPercentage().compareTo(mostSpokenLanguage.getPercentage()) > 0) {
+                mostSpokenLanguage = language;
+            }
+        }
+        return Optional.of(mostSpokenLanguage);
+    }
+
     public List<CountryEntity> allCountries(){
         return countryRepository.findAll();
     }
@@ -125,7 +184,7 @@ public class WorldService {
 
         return String.valueOf(smallestDistricts);
     }
-
+  
     @Transactional
     public long getNumberOfCitiesThatCountryWithHighestNumberOfCitiesHas() {
         List<CityEntity> cities = allCities();
