@@ -3,7 +3,6 @@ package com.sparta.zmsb.weekfiveteamproject.service;
 import com.sparta.zmsb.weekfiveteamproject.entities.CityEntity;
 import com.sparta.zmsb.weekfiveteamproject.entities.CountryEntity;
 import com.sparta.zmsb.weekfiveteamproject.repositories.CityRepository;
-import com.sparta.zmsb.weekfiveteamproject.repositories.CountryLanguageIDRepository;
 import com.sparta.zmsb.weekfiveteamproject.repositories.CountryLanguageRepository;
 import com.sparta.zmsb.weekfiveteamproject.repositories.CountryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,17 +17,14 @@ public class WorldService {
     private final CityRepository cityRepository;
     private final CountryRepository countryRepository;
     private final CountryLanguageRepository countryLanguageRepository;
-    private final CountryLanguageIDRepository countryLanguageIDRepository;
 
     @Autowired
     public WorldService(CityRepository cityRepository, CountryRepository countryRepository,
-                        CountryLanguageRepository countryLanguageRepository,
-                        CountryLanguageIDRepository countryLanguageIDRepository) {
+                        CountryLanguageRepository countryLanguageRepository) {
 
         this.cityRepository = cityRepository;
         this.countryRepository = countryRepository;
         this.countryLanguageRepository = countryLanguageRepository;
-        this.countryLanguageIDRepository = countryLanguageIDRepository;
 
     }
 
@@ -92,7 +88,21 @@ public class WorldService {
     public CountryLanguageRepository getCountryLanguageRepository() {
         return countryLanguageRepository;
     }
-    public CountryLanguageIDRepository getCountryLanguageIDRepository() {
-        return countryLanguageIDRepository;
+
+    public ArrayList<CityEntity> getSmallestDistrictsByPopulation() {
+        List<CityEntity> cities = allCities();
+        ArrayList<CityEntity> sortedCities;
+        ArrayList<CityEntity> sortedSmallestDistricts = new ArrayList<>();
+        Comparator<CityEntity> comparator = Comparator.comparing(CityEntity::getPopulation);
+        sortedCities = cities.stream().sorted(comparator).collect(Collectors.toCollection(ArrayList<CityEntity>::new));
+        for (int i = 0; i < 5; i++) {
+            sortedSmallestDistricts.add(sortedCities.get(i));
+        }
+
+        return sortedSmallestDistricts;
+    }
+
+    public int getNumberOfCitiesThatCountryWithHighestNumberOfCitiesHas() {
+        return 1;
     }
 }
