@@ -3,6 +3,7 @@ package com.sparta.zmsb.weekfiveteamproject.service;
 import com.sparta.zmsb.weekfiveteamproject.entities.CityEntity;
 import com.sparta.zmsb.weekfiveteamproject.entities.CountryEntity;
 import com.sparta.zmsb.weekfiveteamproject.entities.CountrylanguageEntity;
+import com.sparta.zmsb.weekfiveteamproject.entities.CountrylanguageEntityId;
 import com.sparta.zmsb.weekfiveteamproject.repositories.CityRepository;
 import com.sparta.zmsb.weekfiveteamproject.repositories.CountryLanguageRepository;
 import com.sparta.zmsb.weekfiveteamproject.repositories.CountryRepository;
@@ -201,5 +202,32 @@ public class WorldService {
             return cityCount.get();
         }
         return 0;
+
+    }
+
+    // CRUD for CountryLanguageEntity
+    // Create
+    public void createCountryLanguageEntityEntry(CountrylanguageEntity countrylanguageEntity) {
+        countryLanguageRepository.saveAndFlush(countrylanguageEntity);
+    }
+    // Read
+    public ArrayList<CountrylanguageEntity> getCountryLanguagesByCountryCode(CountrylanguageEntityId countrylanguageEntityId) {
+        ArrayList<CountrylanguageEntity> countryLanguageEntities = new ArrayList<>();
+        List<CountrylanguageEntity> allLanguages = countryLanguageRepository.findAll();
+        for (CountrylanguageEntity countrylanguageEntity : allLanguages) {
+            if (countrylanguageEntityId.getCountryCode().equals(countrylanguageEntity.getCountryCode())) {
+                countryLanguageEntities.add(countrylanguageEntity);
+            }
+        }
+
+        return countryLanguageEntities;
+    }
+    // Update
+    public void updateCountryLanguageEntity(CountrylanguageEntity countrylanguageEntity) {
+        countryLanguageRepository.saveAndFlush(countrylanguageEntity);
+    }
+    // Delete
+    public void deleteCountryLanguageEntity(CountrylanguageEntity countrylanguageEntity) {
+        countryLanguageRepository.delete(countrylanguageEntity);
     }
 }
