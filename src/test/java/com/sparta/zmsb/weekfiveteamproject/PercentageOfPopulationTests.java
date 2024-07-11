@@ -124,4 +124,22 @@ public class PercentageOfPopulationTests {
         int actual = worldService.getBiggestCityPopulation(worldService.allCities(), "");
         Assertions.assertEquals(expected,actual);
     }
+
+    @Test
+    @Transactional
+    @DisplayName("Given correct country code return countries total population")
+    void returnCountriesTotalPopulationIfCountryCodeExists() {
+        int expected = 1277558000;
+        int actual = worldService.getCountryTotalPopulation(worldService.allCountries(), "CHN");
+        Assertions.assertEquals(expected,actual);
+    }
+
+    @Test
+    @Transactional
+    @DisplayName("Given empty country code return 1")
+    void returnOneIfCountryCodeEmpty() {
+        int expected = 1;
+        int actual = worldService.getCountryTotalPopulation(worldService.allCountries(), "");
+        Assertions.assertEquals(expected,actual);
+    }
 }

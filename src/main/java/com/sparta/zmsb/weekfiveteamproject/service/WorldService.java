@@ -49,18 +49,9 @@ public class WorldService {
         List<CountryEntity> countries = allCountries();
 
         String countryCode = getCountryCode(countryName, countries);
-
         int countryTotalPopulation = getCountryTotalPopulation(countries, countryCode);
-
         int biggestCityPopulation = getBiggestCityPopulation(cities, countryCode);
-
-        try{
-            return (double) biggestCityPopulation /countryTotalPopulation*100;
-        }
-        catch(ArithmeticException e){
-            e.printStackTrace();
-            return 0.0;
-        }
+        return (double) biggestCityPopulation /countryTotalPopulation*100;
     }
 
     public String getCountryCode(String countryName, List<CountryEntity> countries) {
@@ -85,7 +76,7 @@ public class WorldService {
         return countries.stream()
                 .filter(ce -> ce.getCode().equals(countryCode))
                 .map(CountryEntity::getPopulation)
-                .findFirst().orElse(0);
+                .findFirst().orElse(1);
     }
 
     public boolean doesCityExist(List<CityEntity> cities ,String countryCode){
@@ -103,15 +94,5 @@ public class WorldService {
     }
     public List<CountrylanguageEntity> allLanguages(){
         return countryLanguageRepository.findAll();
-    }
-
-    public CityRepository getCityRepository() {
-        return cityRepository;
-    }
-    public CountryRepository getCountryRepository() {
-        return countryRepository;
-    }
-    public CountryLanguageRepository getCountryLanguageRepository() {
-        return countryLanguageRepository;
     }
 }
