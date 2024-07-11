@@ -27,6 +27,11 @@ public class PercentageOfPopulationTests {
     @BeforeEach
     void setUp() {
         worldService.updateCountry(UpdateCountry.updateCountry("China","Name", worldService.getCountry("CHN")));
+        worldService.updateCountry(UpdateCountry.updateCountry("Asia","Continent", worldService.getCountry("CHN")));
+        worldService.updateCountry(UpdateCountry.updateCountry(1277558000,"Population", worldService.getCountry("CHN")));
+        worldService.updateCountry(UpdateCountry.updateCountry(BigDecimal.valueOf(9572900.00),"SurfaceArea", worldService.getCountry("CHN")));
+        worldService.updateCountry(UpdateCountry.updateCountry(Short.valueOf("-1523"),"IndepYear", worldService.getCountry("CHN")));
+
     }
 
     @Test
@@ -171,6 +176,48 @@ public class PercentageOfPopulationTests {
         String flag = "Nam";
         Throwable exception = Assertions.assertThrows(InvalidParameterException.class, ()-> worldService.updateCountry(UpdateCountry.updateCountry(input,flag, worldService.getCountry("CHN"))));
         Assertions.assertEquals("Unexpected value: Nam", exception.getMessage());
+    }
+
+    @Test
+    @Transactional
+    @DisplayName("Given Continent flag update Continent")
+    void updateCountryContinentTest() {
+        String input = "Europe";
+        String flag = "Continent";
+        System.out.println(worldService.getCountry("CHN").toString());
+        worldService.updateCountry(UpdateCountry.updateCountry(input,flag, worldService.getCountry("CHN")));
+        System.out.println(worldService.getCountry("CHN").toString());
+    }
+    @Test
+    @Transactional
+    @DisplayName("Given Population flag update Population")
+    void updateCountryPopulationTest() {
+        Integer input = 1123455543;
+        String flag = "Population";
+        System.out.println(worldService.getCountry("CHN").toString());
+        worldService.updateCountry(UpdateCountry.updateCountry(input,flag, worldService.getCountry("CHN")));
+        System.out.println(worldService.getCountry("CHN").toString());
+    }
+    @Test
+    @Transactional
+    @DisplayName("Given SurfaceArea flag update SurfaceArea")
+    void updateCountrySurfaceAreaTest() {
+        BigDecimal input = BigDecimal.valueOf(1123455.23);
+        String flag = "SurfaceArea";
+        System.out.println(worldService.getCountry("CHN").toString());
+        worldService.updateCountry(UpdateCountry.updateCountry(input,flag, worldService.getCountry("CHN")));
+        System.out.println(worldService.getCountry("CHN").toString());
+    }
+
+    @Test
+    @Transactional
+    @DisplayName("Given IndepYear flag update IndepYear")
+    void updateCountryIndepYearTest() {
+        Short input = 1804;
+        String flag = "IndepYear";
+        System.out.println(worldService.getCountry("CHN").toString());
+        worldService.updateCountry(UpdateCountry.updateCountry(input,flag, worldService.getCountry("CHN")));
+        System.out.println(worldService.getCountry("CHN").toString());
     }
 
     @Test
