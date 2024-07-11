@@ -26,7 +26,7 @@ public class WorldService {
     @Autowired
     public WorldService(CityRepository cityRepository, CountryRepository countryRepository,
                         CountryLanguageRepository countryLanguageRepository) {
-      
+
         this.cityRepository = cityRepository;
         this.countryRepository = countryRepository;
         this.countryLanguageRepository = countryLanguageRepository;
@@ -40,10 +40,10 @@ public class WorldService {
     }
 
     @Transactional
-    public String whichCountryHasMostCities(){
+    public String whichCountryHasMostCities() {
 
         List<CityEntity> cities = allCities();
-        Map<String , Long> mostCitiesCount = cities.stream()
+        Map<String, Long> mostCitiesCount = cities.stream()
                 .collect(Collectors.groupingBy(
                         c -> c.getCountryCode().getName()
                         , Collectors.counting()));
@@ -52,8 +52,9 @@ public class WorldService {
                 .max(Map.Entry.comparingByValue())
                 .map(Map.Entry::getKey).orElse("");
     }
+
     @Transactional
-    public double percentageOfGivenCountriesPopulationThatLivesInTheLargestCity(String countryName){
+    public double percentageOfGivenCountriesPopulationThatLivesInTheLargestCity(String countryName) {
 
         List<CityEntity> cities = allCities();
         List<CountryEntity> countries = allCountries();
@@ -61,25 +62,24 @@ public class WorldService {
         String countryCode = getCountryCode(countryName, countries);
         int countryTotalPopulation = getCountryTotalPopulation(countries, countryCode);
         int biggestCityPopulation = getBiggestCityPopulation(cities, countryCode);
-        return (double) biggestCityPopulation /countryTotalPopulation*100;
+        return (double) biggestCityPopulation / countryTotalPopulation * 100;
     }
 
     public String getCountryCode(String countryName, List<CountryEntity> countries) {
         return countries.stream()
                 .filter(cE -> cE.getName().equals(countryName))
-                .map(CountryEntity :: getCode)
+                .map(CountryEntity::getCode)
                 .findFirst().orElse("");
     }
 
     public int getBiggestCityPopulation(List<CityEntity> cities, String countryCode) {
 
-        if(!doesCityExist(cities,countryCode)){
+        if (!doesCityExist(cities, countryCode)) {
             return cities.stream()
                     .filter(ciEn -> ciEn.getCountryCode().getCode().equals(countryCode))
                     .max(Comparator.comparingInt(CityEntity::getPopulation))
                     .get().getPopulation();
-        }
-        else return 0;
+        } else return 0;
     }
 
     public int getCountryTotalPopulation(List<CountryEntity> countries, String countryCode) {
@@ -89,7 +89,7 @@ public class WorldService {
                 .findFirst().orElse(1);
     }
 
-    public boolean doesCityExist(List<CityEntity> cities ,String countryCode){
+    public boolean doesCityExist(List<CityEntity> cities, String countryCode) {
         return cities.stream()
                 .filter(ciEn -> ciEn.getCountryCode().getCode().equals(countryCode))
                 .max(Comparator.comparingInt(CityEntity::getPopulation))
@@ -149,16 +149,18 @@ public class WorldService {
         return Optional.of(mostSpokenLanguage);
     }
 
-    public List<CountryEntity> allCountries(){
+    public List<CountryEntity> allCountries() {
         return countryRepository.findAll();
     }
-    public List<CityEntity> allCities(){
+
+    public List<CityEntity> allCities() {
         return cityRepository.findAll();
     }
-    public List<CountrylanguageEntity> allLanguages(){
+
+    public List<CountrylanguageEntity> allLanguages() {
         return countryLanguageRepository.findAll();
     }
-  
+
     public String getSmallestDistrictsByPopulation() {
         List<CityEntity> cities = allCities();
         LinkedHashMap<String, Integer> districtPopulations = new LinkedHashMap<>();
@@ -184,11 +186,11 @@ public class WorldService {
 
         return String.valueOf(smallestDistricts);
     }
-  
+
     @Transactional
     public long getNumberOfCitiesThatCountryWithHighestNumberOfCitiesHas() {
         List<CityEntity> cities = allCities();
-        Map<String , Long> mostCitiesCount = cities.stream()
+        Map<String, Long> mostCitiesCount = cities.stream()
                 .collect(Collectors.groupingBy(
                         c -> c.getCountryCode().getName()
                         , Collectors.counting()));
@@ -201,5 +203,25 @@ public class WorldService {
             return cityCount.get();
         }
         return 0;
+    }
+
+    public void createNewCountry(CountryEntity newCountry) {
+        countryRepository.saveAndFlush(newCountry);
+    }
+
+    @Transactional
+    public void updateCountry(CountryEntity country){
+        countryRepository.saveAndFlush(country);
+    }
+
+    @Transactional
+    public void deleteCountry(CountryEntity country) {
+        countryRepository.delete(country);
+    }
+
+    @Transactional
+    public CountryEntity getCountry(String countryCode) {
+        List<CountryEntity> allCountries = countryRepository.findAll();
+        return allCountries.stream().filter(ce->ce.getCode().equals(countryCode)).findFirst().orElse(null);
     }
 }
