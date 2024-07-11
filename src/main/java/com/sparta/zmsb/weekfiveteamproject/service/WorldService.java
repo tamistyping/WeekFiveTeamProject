@@ -9,10 +9,7 @@ import com.sparta.zmsb.weekfiveteamproject.repositories.CountryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -36,6 +33,7 @@ public class WorldService {
     }
 
     public String getCountryWithMostCities(){
+
         List<CityEntity> cities = allCities();
         Map<String , Long> mostCitiesCount = cities.stream()
                 .collect(Collectors.groupingBy(
@@ -45,6 +43,37 @@ public class WorldService {
         return mostCitiesCount.entrySet().stream()
                 .max(Map.Entry.comparingByValue())
                 .map(Map.Entry::getKey).orElse("");
+    }
+
+    public double getPercentageOfPopulationInLargestCity(String countryName){
+
+        //change to map for key city name, value percentage?
+
+        List<CityEntity> cities = allCities();
+        List<CountryEntity> countries = allCountries();
+
+        String countryCode = countries.stream()
+                .filter(cE -> cE.getName().equals(countryName))
+                .map(CountryEntity :: getCode)
+                .findFirst().orElse("Name not found");
+
+        int countryTotalPopulation = countries.stream()
+                .filter(ce -> ce.getCode().equals(countryCode))
+                .map(CountryEntity::getPopulation)
+                .findFirst().orElse(0);
+
+        int biggestCityPopulation = cities.stream()
+                .filter(ciEn -> ciEn.getCountryCode().equals(countryCode))
+                .max(Comparator.comparingInt(CityEntity::getPopulation))
+                .get().getPopulation();
+
+        try{
+            return (double) biggestCityPopulation /countryTotalPopulation*100;
+        }
+        catch(ArithmeticException e){
+            e.printStackTrace();
+            return 0;
+        }
     }
 
     public List<CountryEntity> allCountries(){
