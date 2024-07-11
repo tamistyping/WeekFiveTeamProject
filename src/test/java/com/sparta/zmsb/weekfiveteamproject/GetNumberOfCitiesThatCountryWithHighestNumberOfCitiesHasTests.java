@@ -18,10 +18,9 @@ public class GetNumberOfCitiesThatCountryWithHighestNumberOfCitiesHasTests {
     @Test
     @DisplayName("Check that getNumberOfCitiesThatCountryWithHighestNumberOfCitiesHas returns correctly")
     void getNumberOfCitiesThatCountryWithHighestNumberOfCitiesHasReturnsCorrectly() {
-        long expected = 5;
+        long expected = 363;
         long actual = worldService.getNumberOfCitiesThatCountryWithHighestNumberOfCitiesHas();
-//        Assertions.assertEquals(expected, actual);
-        System.out.println(actual);
+        Assertions.assertEquals(expected, actual);
     }
 
 }

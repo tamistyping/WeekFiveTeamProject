@@ -5,6 +5,7 @@ import com.sparta.zmsb.weekfiveteamproject.entities.CountryEntity;
 import com.sparta.zmsb.weekfiveteamproject.repositories.CityRepository;
 import com.sparta.zmsb.weekfiveteamproject.repositories.CountryLanguageRepository;
 import com.sparta.zmsb.weekfiveteamproject.repositories.CountryRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +30,7 @@ public class WorldService {
 
     }
 
+    @Transactional
     public String whichCountryHasMostCities(){
 
         List<CityEntity> cities = allCities();
@@ -116,6 +118,7 @@ public class WorldService {
         return String.valueOf(smallestDistricts);
     }
 
+    @Transactional
     public long getNumberOfCitiesThatCountryWithHighestNumberOfCitiesHas() {
         List<CityEntity> cities = allCities();
         Map<String , Long> mostCitiesCount = cities.stream()
@@ -123,8 +126,13 @@ public class WorldService {
                         c -> c.getCountryCode().getName()
                         , Collectors.counting()));
 
-        return mostCitiesCount.entrySet().stream()
+        Optional<Long> cityCount = mostCitiesCount.entrySet().stream()
                 .max(Map.Entry.comparingByValue())
-                .map(Map.Entry::getValue).get();
+                .map(Map.Entry::getValue);
+
+        if (cityCount.isPresent()) {
+            return cityCount.get();
+        }
+        return 0;
     }
 }
