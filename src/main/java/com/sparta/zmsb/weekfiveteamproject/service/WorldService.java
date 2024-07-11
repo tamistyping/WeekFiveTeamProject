@@ -9,6 +9,7 @@ import com.sparta.zmsb.weekfiveteamproject.repositories.CountryLanguageRepositor
 import com.sparta.zmsb.weekfiveteamproject.repositories.CountryRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
 
 
@@ -207,10 +208,12 @@ public class WorldService {
 
     // CRUD for CountryLanguageEntity
     // Create
+    @Transactional
     public void createCountryLanguageEntityEntry(CountrylanguageEntity countrylanguageEntity) {
         countryLanguageRepository.saveAndFlush(countrylanguageEntity);
     }
     // Read
+    @Transactional
     public ArrayList<CountrylanguageEntity> getCountryLanguagesByCountryCode(CountrylanguageEntityId countrylanguageEntityId) {
         ArrayList<CountrylanguageEntity> countryLanguageEntities = new ArrayList<>();
         List<CountrylanguageEntity> allLanguages = countryLanguageRepository.findAll();
@@ -223,10 +226,13 @@ public class WorldService {
         return countryLanguageEntities;
     }
     // Update
+    @Modifying
+    @Transactional
     public void updateCountryLanguageEntity(CountrylanguageEntity countrylanguageEntity) {
         countryLanguageRepository.saveAndFlush(countrylanguageEntity);
     }
     // Delete
+    @Transactional
     public void deleteCountryLanguageEntity(CountrylanguageEntity countrylanguageEntity) {
         countryLanguageRepository.delete(countrylanguageEntity);
     }
