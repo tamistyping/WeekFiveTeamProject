@@ -3,15 +3,19 @@ package com.sparta.zmsb.weekfiveteamproject;
 import com.sparta.zmsb.weekfiveteamproject.entities.CityEntity;
 import com.sparta.zmsb.weekfiveteamproject.entities.CountryEntity;
 import com.sparta.zmsb.weekfiveteamproject.entities.CountrylanguageEntity;
-import com.sparta.zmsb.weekfiveteamproject.repositories.CityRepository;
 import com.sparta.zmsb.weekfiveteamproject.service.WorldService;
+import com.sparta.zmsb.weekfiveteamproject.updates.UpdateCountry;
+import com.sparta.zmsb.weekfiveteamproject.updates.CreateCountry;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.math.BigDecimal;
+import java.security.InvalidParameterException;
 import java.util.List;
 
 @SpringBootTest
@@ -19,6 +23,11 @@ public class PercentageOfPopulationTests {
 
     @Autowired
     WorldService worldService;
+
+    @BeforeEach
+    void setUp() {
+        worldService.updateCountry(UpdateCountry.updateCountry("China","Name", worldService.getCountry("CHN")));
+    }
 
     @Test
     @DisplayName("When creating City Repository List Size should be 500")
@@ -141,5 +150,47 @@ public class PercentageOfPopulationTests {
         int expected = 1;
         int actual = worldService.getCountryTotalPopulation(worldService.allCountries(), "");
         Assertions.assertEquals(expected,actual);
+    }
+
+    @Test
+    @Transactional
+    @DisplayName("Given update country method, change China name to input")
+    void updateCountryCheckNameChange() {
+        String input = "Chhiiiiiiinnaaaaa";
+        String flag = "Name";
+        System.out.println(worldService.getCountry("CHN").toString());
+        worldService.updateCountry(UpdateCountry.updateCountry(input,flag, worldService.getCountry("CHN")));
+        System.out.println(worldService.getCountry("CHN").toString());
+    }
+
+    @Test
+    @Transactional
+    @DisplayName("Given update country method has invalid flag, throw exception")
+    void updateCountryWithInvalidFlag() {
+        String input = "Chiiiiiiinnaaaaa";
+        String flag = "Nam";
+        Throwable exception = Assertions.assertThrows(InvalidParameterException.class, ()-> worldService.updateCountry(UpdateCountry.updateCountry(input,flag, worldService.getCountry("CHN"))));
+        Assertions.assertEquals("Unexpected value: Nam", exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("Given new country created, return new country values")
+    void createCountryTestForValues(){
+        CountryEntity newCountry = CreateCountry.createCountry("ZZZ", "Zedlandia","Europe","Western Europe",
+                BigDecimal.valueOf(2001304.35), (short) 2024, 12345678,BigDecimal.valueOf(90.00),BigDecimal.valueOf(5402398183.00),
+                null, "Zedlandiaa", "Republic", "Captain Z", null, "ZZ" );
+        System.out.println(newCountry.toString());
+    }
+
+    @Test
+    @Transactional
+    @DisplayName("Given create country method, create a country")
+    void checkCreateAndDeleteCountryMethod() {
+        worldService.createNewCountry(CreateCountry.createCountry("ZZZ", "Zedlandia", "Europe", "Western Europe",
+                BigDecimal.valueOf(2001304.35), (short) 2024, 12345678, BigDecimal.valueOf(90.00), BigDecimal.valueOf(54023.00),
+                null, "Zedlandiaa", "Republic", "Captain Z", null, "ZZ"));
+        System.out.println(worldService.getCountry("ZZZ"));
+        worldService.deleteCountry(worldService.getCountry("ZZZ"));
+        System.out.println(worldService.getCountry("ZZZ"));
     }
 }

@@ -11,8 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 
-import java.math.BigDecimal;
-import java.lang.reflect.Array;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -204,13 +202,8 @@ public class WorldService {
         }
         return 0;
     }
-
-    public void createNewCountry(CountryEntity newCountry) {
-        countryRepository.saveAndFlush(newCountry);
-    }
-
     @Transactional
-    public void updateCountry(CountryEntity country){
+    public void createNewCountry(CountryEntity country) {
         countryRepository.saveAndFlush(country);
     }
 
@@ -223,5 +216,9 @@ public class WorldService {
     public CountryEntity getCountry(String countryCode) {
         List<CountryEntity> allCountries = countryRepository.findAll();
         return allCountries.stream().filter(ce->ce.getCode().equals(countryCode)).findFirst().orElse(null);
+    }
+    @Transactional
+    public void updateCountry(CountryEntity country){
+        countryRepository.saveAndFlush(country);
     }
 }
