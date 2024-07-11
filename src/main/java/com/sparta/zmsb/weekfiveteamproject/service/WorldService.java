@@ -11,15 +11,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 
-import java.math.BigDecimal;
-import java.lang.reflect.Array;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 public class WorldService {
-
-
 
     private final CityRepository cityRepository;
     private final CountryRepository countryRepository;
@@ -32,7 +28,32 @@ public class WorldService {
         this.cityRepository = cityRepository;
         this.countryRepository = countryRepository;
         this.countryLanguageRepository = countryLanguageRepository;
+    }
 
+    @Transactional
+    public CityEntity updateCity(Integer id, String name, String district, Integer population) {
+        Optional<CityEntity> cityOptional = cityRepository.findById(id);
+
+        if (cityOptional.isPresent()) {
+            CityEntity city = cityOptional.get();
+            if (name != null) city.setName(name);
+            if (district != null) city.setDistrict(district);
+            if (population != null) city.setPopulation(population);
+            return cityRepository.save(city);
+        } else {
+            throw new RuntimeException("City with id " + id + " not found");
+        }
+    }
+
+    @Transactional
+    public void deleteCity(Integer id) {
+        Optional<CityEntity> cityOptional = cityRepository.findById(id);
+
+        if (cityOptional.isPresent()) {
+            cityRepository.delete(cityOptional.get());
+        } else {
+            throw new RuntimeException("City with id " + id + " not found");
+        }
     }
 
     public List<CountryEntity> countriesWithNoHeadOfState() {
