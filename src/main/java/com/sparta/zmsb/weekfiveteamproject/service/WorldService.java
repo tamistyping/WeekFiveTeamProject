@@ -32,7 +32,7 @@ public class WorldService {
 
     }
 
-    public String getCountryWithMostCities(){
+    public String whichCountryHasMostCities(){
 
         List<CityEntity> cities = allCities();
         Map<String , Long> mostCitiesCount = cities.stream()
@@ -45,7 +45,7 @@ public class WorldService {
                 .map(Map.Entry::getKey).orElse("");
     }
 
-    public double getPercentageOfPopulationInLargestCity(String countryName){
+    public float percentageOfGivenCountriesPopulationThatLivesInTheLargestCity(String countryName){
 
         //change to map for key city name, value percentage?
 
@@ -68,7 +68,7 @@ public class WorldService {
                 .get().getPopulation();
 
         try{
-            return (double) biggestCityPopulation /countryTotalPopulation*100;
+            return (float) biggestCityPopulation /countryTotalPopulation*100;
         }
         catch(ArithmeticException e){
             e.printStackTrace();
