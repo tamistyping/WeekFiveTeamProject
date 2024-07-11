@@ -31,21 +31,6 @@ public class WorldService {
     }
 
     @Transactional
-    public CityEntity updateCity(Integer id, String name, String district, Integer population) {
-        Optional<CityEntity> cityOptional = cityRepository.findById(id);
-
-        if (cityOptional.isPresent()) {
-            CityEntity city = cityOptional.get();
-            if (name != null) city.setName(name);
-            if (district != null) city.setDistrict(district);
-            if (population != null) city.setPopulation(population);
-            return cityRepository.save(city);
-        } else {
-            throw new RuntimeException("City with id " + id + " not found");
-        }
-    }
-
-    @Transactional
     public void deleteCity(Integer id) {
         Optional<CityEntity> cityOptional = cityRepository.findById(id);
 
@@ -181,6 +166,7 @@ public class WorldService {
     public List<CountrylanguageEntity> allLanguages(){
         return countryLanguageRepository.findAll();
     }
+
   
     public String getSmallestDistrictsByPopulation() {
         List<CityEntity> cities = allCities();
