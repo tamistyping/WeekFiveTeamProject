@@ -18,9 +18,9 @@ public class PercentageOfPopulationTests {
     WorldService worldService;
 
     @Test
-    @DisplayName("When creating City Repository List Size should be 500")
-    void whenCreatingCityRepositoryListSizeShouldBe500() {
-        int expected = 500;
+    @DisplayName("When creating City Repository List Size should be 4079")
+    void whenCreatingCityRepositoryListSizeShouldBe4079() {
+        int expected = 4079;
         List<CityEntity> cityRepoSize = worldService.allCities();
         int actual = cityRepoSize.size();
         Assertions.assertEquals(expected,actual);
