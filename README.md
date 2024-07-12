@@ -16,4 +16,18 @@ You will need to use Spring JPA to connect and communicate with the Database. Al
 4. Which 5 districts have the smallest population?
 5. For a given country, approximately how many people speak its most popular official language?
 
-Think carefully about the use of a service layer in your application. You will need to use WebMVCTests to ensure your repositories work correctly.
+This project in its current state is the backend for a website to query the MySQL world database, with no current application. Methods for querying the database have been implemented utilising a service layer. These methods have been thorougly tested through the use of JUnit unit testing and the following features are finished:
+- Find country by country code
+- Create a new country, city, or country language entry
+- Update all current country's fields, excluding country code
+- Update all current city's fields
+- update all current country language fields
+- Delete a Country, city or country language from the database
+- Find all countries
+- Find all cities
+- Find all Country Languages
+- Find the percentage of population that lives in a given country's largest city
+- Find which country has the most cities, and how many cities the country has
+- Find which countries have no head of state
+- Find which 5 districts have the smallest population
+- Find the most popular offical language in a given country
