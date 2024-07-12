@@ -4,6 +4,7 @@ import com.sparta.zmsb.weekfiveteamproject.entities.CityEntity;
 import com.sparta.zmsb.weekfiveteamproject.entities.CountryEntity;
 import com.sparta.zmsb.weekfiveteamproject.entities.CountrylanguageEntity;
 import com.sparta.zmsb.weekfiveteamproject.entities.CountrylanguageEntityId;
+import com.sparta.zmsb.weekfiveteamproject.logging.AppLogger;
 import com.sparta.zmsb.weekfiveteamproject.repositories.CityRepository;
 import com.sparta.zmsb.weekfiveteamproject.repositories.CountryLanguageRepository;
 import com.sparta.zmsb.weekfiveteamproject.repositories.CountryRepository;
@@ -14,12 +15,13 @@ import org.springframework.stereotype.Service;
 
 
 import java.util.*;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 @Service
 public class WorldService {
 
-
+    private static final Logger logger = AppLogger.getLogger();
 
     private final CityRepository cityRepository;
     private final CountryRepository countryRepository;
@@ -28,7 +30,7 @@ public class WorldService {
     @Autowired
     public WorldService(CityRepository cityRepository, CountryRepository countryRepository,
                         CountryLanguageRepository countryLanguageRepository) {
-
+        logger.info("WorldService constructor initialised");
         this.cityRepository = cityRepository;
         this.countryRepository = countryRepository;
         this.countryLanguageRepository = countryLanguageRepository;
@@ -36,16 +38,19 @@ public class WorldService {
 
     @Transactional
     public void deleteCity(Integer id) {
+        logger.info("Entered deleteCity method");
         Optional<CityEntity> cityOptional = cityRepository.findById(id);
 
         if (cityOptional.isPresent()) {
             cityRepository.delete(cityOptional.get());
         } else {
+            logger.info("Encountered error: city not found");
             throw new RuntimeException("City with id " + id + " not found");
         }
     }
 
     public List<CountryEntity> countriesWithNoHeadOfState() {
+        logger.info("Entered getCountriesWithNoHeadOfState method");
         return countryRepository.findAll().stream()
                 .filter(country -> country.getHeadOfState() == null || country.getHeadOfState().isBlank())
                 .collect(Collectors.toList());
@@ -53,7 +58,7 @@ public class WorldService {
 
     @Transactional
     public String whichCountryHasMostCities() {
-
+        logger.info("Entered whichCountryHasMostCities method");
         List<CityEntity> cities = allCities();
         Map<String, Long> mostCitiesCount = cities.stream()
                 .collect(Collectors.groupingBy(
@@ -67,7 +72,7 @@ public class WorldService {
 
     @Transactional
     public double percentageOfGivenCountriesPopulationThatLivesInTheLargestCity(String countryName) {
-
+        logger.info("Entered percentageOfGivenCountriesPopulationThatLivesInTheLargestCity method");
         List<CityEntity> cities = allCities();
         List<CountryEntity> countries = allCountries();
 
@@ -78,6 +83,7 @@ public class WorldService {
     }
 
     public String getCountryCode(String countryName, List<CountryEntity> countries) {
+        logger.info("Entered getCountryCode method");
         return countries.stream()
                 .filter(cE -> cE.getName().equals(countryName))
                 .map(CountryEntity::getCode)
@@ -85,7 +91,7 @@ public class WorldService {
     }
 
     public int getBiggestCityPopulation(List<CityEntity> cities, String countryCode) {
-
+        logger.info("Entered getBiggestCityPopulation method");
         if (!doesCityExist(cities, countryCode)) {
             return cities.stream()
                     .filter(ciEn -> ciEn.getCountryCode().getCode().equals(countryCode))
@@ -95,6 +101,7 @@ public class WorldService {
     }
 
     public int getCountryTotalPopulation(List<CountryEntity> countries, String countryCode) {
+        logger.info("Entered getCountryTotalPopulation method");
         return countries.stream()
                 .filter(ce -> ce.getCode().equals(countryCode))
                 .map(CountryEntity::getPopulation)
@@ -102,6 +109,7 @@ public class WorldService {
     }
 
     public boolean doesCityExist(List<CityEntity> cities, String countryCode) {
+        logger.info("Entered doesCityExist method");
         return cities.stream()
                 .filter(ciEn -> ciEn.getCountryCode().getCode().equals(countryCode))
                 .max(Comparator.comparingInt(CityEntity::getPopulation))
@@ -109,6 +117,7 @@ public class WorldService {
     }
 
     public int amountOfPeopleSpeakingOfficialLanguage(String countryName) {
+        logger.info("Entered amountOfPeopleSpeakingOfficialLanguage method");
         List<CountryEntity> countries = allCountries();
 
         String countryCode = countries.stream()
@@ -118,6 +127,7 @@ public class WorldService {
                 .orElse("Name not found");
 
         if ("Name not found".equals(countryCode)) {
+            logger.info("Encountered error: country code not found");
             return 0;
         }
 
@@ -133,11 +143,13 @@ public class WorldService {
         if (mostSpoken.isPresent()) {
             return (int) (population * mostSpoken.get().getPercentage().doubleValue() / 100);
         } else {
+            logger.info("Encountered error: language not found");
             return 0;
         }
     }
 
     private List<CountrylanguageEntity> officialLanguagesOfCountry(String countryCode) {
+        logger.info("Entered officialLanguagesOfCountry method");
         List<CountrylanguageEntity> languages = countryLanguageRepository.findAll();
         List<CountrylanguageEntity> officialLanguages = new ArrayList<>();
         for (CountrylanguageEntity language : languages) {
@@ -149,6 +161,7 @@ public class WorldService {
     }
 
     private Optional<CountrylanguageEntity> mostSpokenLanguageInCountry(List<CountrylanguageEntity> languages) {
+        logger.info("Entered mostSpokenLanguageInCountry method");
         if (languages.isEmpty()) {
             return Optional.empty();
         }
@@ -174,6 +187,7 @@ public class WorldService {
     }
     
     public String getSmallestDistrictsByPopulation() {
+        logger.info("Entered getSmallestDistrictsByPopulation method");
         List<CityEntity> cities = allCities();
         LinkedHashMap<String, Integer> districtPopulations = new LinkedHashMap<>();
 
@@ -201,6 +215,7 @@ public class WorldService {
 
     @Transactional
     public long getNumberOfCitiesThatCountryWithHighestNumberOfCitiesHas() {
+        logger.info("Entered getNumberOfCitiesThatCountryWithHighestNumberOfCitiesHas method");
         List<CityEntity> cities = allCities();
         Map<String, Long> mostCitiesCount = cities.stream()
                 .collect(Collectors.groupingBy(
@@ -222,11 +237,13 @@ public class WorldService {
     // Create
     @Transactional
     public void createCountryLanguageEntityEntry(CountrylanguageEntity countrylanguageEntity) {
+        logger.info("Entered createCountryLanguageEntityEntry method");
         countryLanguageRepository.saveAndFlush(countrylanguageEntity);
     }
     // Read
     @Transactional
     public ArrayList<CountrylanguageEntity> getCountryLanguagesByCountryCode(CountrylanguageEntityId countrylanguageEntityId) {
+        logger.info("Entered getCountryLanguagesByCountryCode method");
         ArrayList<CountrylanguageEntity> countryLanguageEntities = new ArrayList<>();
         List<CountrylanguageEntity> allLanguages = countryLanguageRepository.findAll();
         for (CountrylanguageEntity countrylanguageEntity : allLanguages) {
@@ -241,30 +258,36 @@ public class WorldService {
     @Modifying
     @Transactional
     public void updateCountryLanguageEntity(CountrylanguageEntity countrylanguageEntity) {
+        logger.info("Entered updateCountryLanguageEntity method");
         countryLanguageRepository.saveAndFlush(countrylanguageEntity);
     }
     // Delete
     @Transactional
     public void deleteCountryLanguageEntity(CountrylanguageEntity countrylanguageEntity) {
+        logger.info("Entered deleteCountryLanguageEntity method");
         countryLanguageRepository.delete(countrylanguageEntity);
     }
     @Transactional
     public void createNewCountry(CountryEntity country) {
+        logger.info("Entered createNewCountry method");
         countryRepository.saveAndFlush(country);
     }
 
     @Transactional
     public void deleteCountry(CountryEntity country) {
+        logger.info("Entered deleteCountry method");
         countryRepository.delete(country);
     }
 
     @Transactional
     public CountryEntity getCountry(String countryCode) {
+        logger.info("Entered getCountry method");
         List<CountryEntity> allCountries = countryRepository.findAll();
         return allCountries.stream().filter(ce->ce.getCode().equals(countryCode)).findFirst().orElse(null);
     }
     @Transactional
     public void updateCountry(CountryEntity country){
+        logger.info("Entered updateCountry method");
         countryRepository.saveAndFlush(country);
     }
 }
