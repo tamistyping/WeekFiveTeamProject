@@ -1,0 +1,147 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=windows-1252"> 
+  <title>Coverage Report > UpdateCountry</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.sparta.zmsb.weekfiveteamproject.updates</a>
+</div>
+
+<h1>Coverage Summary for Class: UpdateCountry (com.sparta.zmsb.weekfiveteamproject.updates)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">UpdateCountry</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (2/2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    35.7%
+  </span>
+  <span class="absValue">
+    (5/14)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    50%
+  </span>
+  <span class="absValue">
+    (9/18)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.sparta.zmsb.weekfiveteamproject.updates;
+&nbsp;
+&nbsp;import com.sparta.zmsb.weekfiveteamproject.entities.CountryEntity;
+&nbsp;import org.springframework.stereotype.Component;
+&nbsp;
+&nbsp;import java.math.BigDecimal;
+&nbsp;import java.security.InvalidParameterException;
+&nbsp;
+&nbsp;@Component
+<b class="fc">&nbsp;public class UpdateCountry {</b>
+&nbsp;    public static &lt;T&gt; CountryEntity updateCountry(T updatedValue, String flag, CountryEntity countryEntity) {
+<b class="pc">&nbsp;        switch (flag) {</b>
+<b class="fc">&nbsp;            case &quot;Name&quot; -&gt; countryEntity.setName(updatedValue.toString());</b>
+<b class="fc">&nbsp;            case &quot;Population&quot; -&gt; countryEntity.setPopulation(((Integer) updatedValue));</b>
+<b class="fc">&nbsp;            case &quot;Continent&quot; -&gt; countryEntity.setContinent(updatedValue.toString());</b>
+<b class="nc">&nbsp;            case &quot;Region&quot; -&gt; countryEntity.setRegion(updatedValue.toString());</b>
+<b class="fc">&nbsp;            case &quot;SurfaceArea&quot; -&gt; countryEntity.setSurfaceArea((BigDecimal) updatedValue);</b>
+<b class="fc">&nbsp;            case &quot;IndepYear&quot; -&gt; countryEntity.setIndepYear((Short) updatedValue);</b>
+<b class="nc">&nbsp;            case &quot;LifeExpectancy&quot; -&gt; countryEntity.setLifeExpectancy((BigDecimal) updatedValue);</b>
+<b class="nc">&nbsp;            case &quot;GNP&quot; -&gt; countryEntity.setGnp((BigDecimal) updatedValue);</b>
+<b class="nc">&nbsp;            case &quot;GNPOld&quot; -&gt; countryEntity.setGNPOld((BigDecimal) updatedValue);</b>
+<b class="nc">&nbsp;            case &quot;LocalName&quot; -&gt; countryEntity.setLocalName(updatedValue.toString());</b>
+<b class="nc">&nbsp;            case &quot;GovernmentForm&quot; -&gt; countryEntity.setGovernmentForm(updatedValue.toString());</b>
+<b class="nc">&nbsp;            case &quot;HeadOfState&quot; -&gt; countryEntity.setHeadOfState(updatedValue.toString());</b>
+<b class="nc">&nbsp;            case &quot;Capital&quot; -&gt; countryEntity.setCapital((Integer) updatedValue);</b>
+<b class="nc">&nbsp;            case &quot;Code2&quot; -&gt; countryEntity.setCode2(updatedValue.toString());</b>
+<b class="fc">&nbsp;            default -&gt; throw new InvalidParameterException(&quot;Unexpected value: &quot; + flag);</b>
+&nbsp;        }
+<b class="fc">&nbsp;        return countryEntity;</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-07-12 09:08</div>
+</div>
+</body>
+</html>
