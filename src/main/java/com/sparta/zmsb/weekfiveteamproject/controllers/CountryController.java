@@ -2,7 +2,6 @@ package com.sparta.zmsb.weekfiveteamproject.controllers;
 
 import com.sparta.zmsb.weekfiveteamproject.entities.CountryEntity;
 import com.sparta.zmsb.weekfiveteamproject.service.WorldService;
-import com.sparta.zmsb.weekfiveteamproject.updates.UpdateCountry;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.hateoas.CollectionModel;
@@ -51,6 +50,18 @@ public class CountryController {
         EntityModel<CountryEntity> country = EntityModel.of(worldService.getCountry(id));
         return new ResponseEntity<>(country.add(citiesLinks(country.getContent())).add(languagesLinks(country.getContent())), HttpStatus.OK);
 
+    }
+
+    @GetMapping("/languages/{language}")
+    public ResponseEntity<CollectionModel<EntityModel<CountryEntity>>> getCountriesByLanguage(@PathVariable final String language) {
+        if(worldService.getAllLanguages().contains(language)){
+            List<EntityModel<CountryEntity>> countries = worldService.getAllCountriesByLanguage(language)
+                    .stream().map(this::getCountryEntityModel).toList();
+            return new ResponseEntity<>(CollectionModel.of(countries,WebMvcLinkBuilder.linkTo(methodOn(CountryController.class).getCountriesByLanguage(language)).withSelfRel()), HttpStatus.OK);
+        }
+        else{
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
 
     @GetMapping("/with-no-head-of-state")
@@ -133,4 +144,6 @@ public class CountryController {
         Link relink = WebMvcLinkBuilder.linkTo(methodOn(CountryController.class).getAllCountries()).withRel("country");
         return EntityModel.of(country, selfLink, relink).add(citiesLinks).add(languagesLinks);
     }
+
+    //todo Get Countries by language
 }

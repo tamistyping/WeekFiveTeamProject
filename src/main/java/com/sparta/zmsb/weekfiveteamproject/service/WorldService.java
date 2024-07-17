@@ -329,4 +329,32 @@ public class WorldService {
     public CountrylanguageEntity saveCountryLanguage(CountrylanguageEntity entity) {
         return countryLanguageRepository.save(entity);
     }
+
+    public Set<String> getAllLanguages(){
+        logger.info("Entered getAllLanguages method");
+        Set<String> uniqueLanguages = new HashSet<>();
+        List<CountrylanguageEntity> languages = countryLanguageRepository.findAll();
+        for(CountrylanguageEntity language : languages){
+            uniqueLanguages.add(language.getId().getLanguage());
+        }
+        return uniqueLanguages;
+        //might need to change this needs testing
+    }
+
+    @Transactional
+    public List<CountryEntity> getAllCountriesByLanguage(String language){
+        logger.info("Entered getAllCountriesByLanguage method");
+        List<CountryEntity> countries = countryRepository.findAll();
+        return countries.stream().filter(country -> {
+            List<CountrylanguageEntity> languages = getCountryLanguagesByCountryCode(country.getCode());
+            for(int i = 0; i<languages.size(); i++ ){
+                if(languages.get(i).getId().getLanguage().equals(language)){
+                    return true;
+                }
+            }
+            return false;
+        }).toList();
+    }
+
+    //todo find countries by language
 }

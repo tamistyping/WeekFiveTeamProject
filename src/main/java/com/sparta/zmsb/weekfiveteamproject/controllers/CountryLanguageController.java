@@ -91,4 +91,6 @@ public class CountryLanguageController {
         return ResponseEntity.ok(entityModel);
     }
 
+    //todo get all languages independent of country
+
 }
