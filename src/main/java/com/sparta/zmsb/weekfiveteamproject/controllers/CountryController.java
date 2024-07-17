@@ -3,7 +3,6 @@ package com.sparta.zmsb.weekfiveteamproject.controllers;
 import com.sparta.zmsb.weekfiveteamproject.entities.CountryEntity;
 import com.sparta.zmsb.weekfiveteamproject.service.WorldService;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
@@ -15,6 +14,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Objects;
+
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
@@ -57,8 +58,6 @@ public class CountryController {
         return new ResponseEntity<>(CollectionModel.of(countries,WebMvcLinkBuilder.linkTo(methodOn(CountryController.class).getCountriesWithNoHeadOfStates()).withSelfRel()), HttpStatus.OK);
     }
 
-
-
     @GetMapping("/country-with-most-cities")
     public ResponseEntity<EntityModel<CountryEntity>> getCountryWithMostCities() {
         EntityModel<CountryEntity> country = EntityModel.of
@@ -78,7 +77,18 @@ public class CountryController {
 
     @PutMapping("/{id}")
     public ResponseEntity<EntityModel<CountryEntity>> updateCountry(@RequestBody final CountryEntity country, @PathVariable final String id) {
-
+        if(id.length()!=3){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        if(!Objects.equals(country.getCode(), id)){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        CountryEntity correspondingCountry = worldService.getCountry(id);
+        if(correspondingCountry == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        worldService.updateCountry(country);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @DeleteMapping("/{id}") //No HATEOAS as no content return
