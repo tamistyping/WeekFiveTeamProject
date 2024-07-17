@@ -270,16 +270,15 @@ public class WorldService {
     }
     // Read
     @Transactional
-    public ArrayList<CountrylanguageEntity> getCountryLanguagesByCountryCode(CountrylanguageEntityId countrylanguageEntityId) {
+    public List<CountrylanguageEntity> getCountryLanguagesByCountryCode(String countryCode) {
         logger.info("Entered getCountryLanguagesByCountryCode method");
-        ArrayList<CountrylanguageEntity> countryLanguageEntities = new ArrayList<>();
+        List<CountrylanguageEntity> countryLanguageEntities = new ArrayList<>();
         List<CountrylanguageEntity> allLanguages = countryLanguageRepository.findAll();
         for (CountrylanguageEntity countrylanguageEntity : allLanguages) {
-            if (countrylanguageEntityId.getCountryCode().equals(countrylanguageEntity.getCountryCode())) {
+            if (countryCode.equals(countrylanguageEntity.getId().getCountryCode())) {
                 countryLanguageEntities.add(countrylanguageEntity);
             }
         }
-
         return countryLanguageEntities;
     }
     // Update
@@ -323,5 +322,9 @@ public class WorldService {
     public void updateCountry(CountryEntity country){
         logger.info("Entered updateCountry method");
         countryRepository.saveAndFlush(country);
+    }
+
+    public CountrylanguageEntity saveCountryLanguage(CountrylanguageEntity entity) {
+        return countryLanguageRepository.save(entity);
     }
 }
