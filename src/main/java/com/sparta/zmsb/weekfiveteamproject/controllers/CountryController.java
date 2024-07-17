@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
@@ -43,13 +44,13 @@ public class CountryController {
         if(id.length()!=3){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        EntityModel<CountryEntity> country = EntityModel.of(worldService.getCountry(id));
-        if(country.getContent() == null) {
+        CountryEntity c = worldService.getCountry(id);
+        if(c==null){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        else {
-            return new ResponseEntity<>(country.add(citiesLinks(country.getContent())).add(languagesLinks(country.getContent())), HttpStatus.OK);
-        }
+        EntityModel<CountryEntity> country = EntityModel.of(worldService.getCountry(id));
+        return new ResponseEntity<>(country.add(citiesLinks(country.getContent())).add(languagesLinks(country.getContent())), HttpStatus.OK);
+
     }
 
     @GetMapping("/with-no-head-of-state")
@@ -67,9 +68,14 @@ public class CountryController {
                                 , worldService.allCountries())));
         return new ResponseEntity<>(country.add(citiesLinks(country.getContent())), HttpStatus.OK);
     }
-    
+
     @PostMapping
     public ResponseEntity<EntityModel<CountryEntity>> createCountry(@RequestBody @Valid CountryEntity country, HttpServletRequest request) {
+
+        Optional<CountryEntity> checkCode = worldService.allCountries().stream().filter(c-> c.getCode().equals(country.getCode())).toList().stream().findFirst();
+        if(checkCode.isPresent()){
+            return new ResponseEntity<>(/* Exception here explaining code is the same as  */ HttpStatus.CONFLICT);
+        }
         worldService.createNewCountry(country);
         URI location = URI.create(request.getRequestURL().toString() + "/" + country.getCode());
         Link selfLink = WebMvcLinkBuilder.linkTo(methodOn(CountryController.class).getCountry(country.getCode())).withSelfRel();
@@ -118,7 +124,7 @@ public class CountryController {
         return worldService.allLanguages().stream().filter(lang -> lang.getCountryCode().getCode().equals(country.getCode())).toList()
                 .stream().map(
                         lang -> WebMvcLinkBuilder.linkTo(
-                                methodOn(CountryLanguageController.class).getLanguageByCountryCode(lang.getId())).withRel(lang.getId().getLanguage())).toList();
+                                methodOn(CountryLanguageController.class).getLanguageByCountryCode(lang.getCountryCode().getCode())).withRel(lang.getId().getLanguage())).toList();
     }
     private EntityModel<CountryEntity> getCountryEntityModel(CountryEntity country) {
         List<Link> citiesLinks = citiesLinks(country);

@@ -1,5 +1,6 @@
 package com.sparta.zmsb.weekfiveteamproject.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import org.hibernate.annotations.ColumnDefault;
@@ -16,6 +17,7 @@ public class CountrylanguageEntity {
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @ColumnDefault("''")
     @JoinColumn(name = "CountryCode", nullable = false)
+    @JsonBackReference
     private CountryEntity countryCode;
 
     @NotNull
