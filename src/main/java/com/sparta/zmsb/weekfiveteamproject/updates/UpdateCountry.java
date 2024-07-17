@@ -1,14 +1,17 @@
 package com.sparta.zmsb.weekfiveteamproject.updates;
 
 import com.sparta.zmsb.weekfiveteamproject.entities.CountryEntity;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.security.InvalidParameterException;
 
 @Component
-public class UpdateCountry {
-    public static <T> CountryEntity updateCountry(T updatedValue, String flag, CountryEntity countryEntity) {
+public class UpdateCountry<T> {
+
+    public static <T> CountryEntity updateCountryOneColumn(T updatedValue, String flag, CountryEntity countryEntity) {
         switch (flag) {
             case "Name" -> countryEntity.setName(updatedValue.toString());
             case "Population" -> countryEntity.setPopulation(((Integer) updatedValue));
