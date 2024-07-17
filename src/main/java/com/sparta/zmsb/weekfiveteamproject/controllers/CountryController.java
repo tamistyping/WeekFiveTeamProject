@@ -118,7 +118,7 @@ public class CountryController {
         return worldService.allLanguages().stream().filter(lang -> lang.getCountryCode().getCode().equals(country.getCode())).toList()
                 .stream().map(
                         lang -> WebMvcLinkBuilder.linkTo(
-                                methodOn(CountryLanguageController.class).getLanguageByCountryCode(lang.getCountryCode().getCode())).withRel(lang.getId().getLanguage())).toList();
+                                methodOn(CountryLanguageController.class).getLanguageByCountryCode(lang.getId())).withRel(lang.getId().getLanguage())).toList();
     }
     private EntityModel<CountryEntity> getCountryEntityModel(CountryEntity country) {
         List<Link> citiesLinks = citiesLinks(country);
