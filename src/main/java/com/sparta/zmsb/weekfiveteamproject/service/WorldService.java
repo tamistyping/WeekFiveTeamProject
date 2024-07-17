@@ -192,10 +192,12 @@ public class WorldService {
     }
 
     //Create
+
     public CityEntity createCity(CityEntity city) {
         return cityRepository.saveAndFlush(city);
     }
     // Read
+
     public List<CityEntity> allCities() {
         return cityRepository.findAll();
     }
