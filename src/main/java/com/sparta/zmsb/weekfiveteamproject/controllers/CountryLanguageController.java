@@ -1,6 +1,7 @@
 package com.sparta.zmsb.weekfiveteamproject.controllers;
 
 
+import com.sparta.zmsb.weekfiveteamproject.entities.CountryEntity;
 import com.sparta.zmsb.weekfiveteamproject.entities.CountrylanguageEntity;
 import com.sparta.zmsb.weekfiveteamproject.entities.CountrylanguageEntityId;
 import com.sparta.zmsb.weekfiveteamproject.service.WorldService;
@@ -28,6 +29,14 @@ public class CountryLanguageController {
 
     public CountryLanguageController(WorldService worldService) {
         this.worldService = worldService;
+    }
+
+    @GetMapping("/all-languages")
+    public ResponseEntity<List<EntityModel<String>>> getAllUniqueLanguages(){
+        List<EntityModel<String>> allLanguages = worldService.getAllLanguages().stream()
+                .map(language -> EntityModel.of(language, countriesLinks(language)
+                        )).toList();
+        return new ResponseEntity<>(allLanguages, HttpStatus.OK);
     }
 
     @GetMapping
@@ -91,6 +100,11 @@ public class CountryLanguageController {
         return ResponseEntity.ok(entityModel);
     }
 
-    //todo get all languages independent of country
+    private List<Link> countriesLinks(String language){
+        return worldService.getAllCountriesByLanguage(language).stream().map(
+                country -> WebMvcLinkBuilder.linkTo(
+                        methodOn(CountryController.class).getCountry(country.getCode())).withRel(country.getName())).toList();
+}
+    //todo get all languages independent of country links to which countries speak it?
 
 }

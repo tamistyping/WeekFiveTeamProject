@@ -330,14 +330,14 @@ public class WorldService {
         return countryLanguageRepository.save(entity);
     }
 
-    public Set<String> getAllLanguages(){
+    public List<String> getAllLanguages(){
         logger.info("Entered getAllLanguages method");
         Set<String> uniqueLanguages = new HashSet<>();
         List<CountrylanguageEntity> languages = countryLanguageRepository.findAll();
         for(CountrylanguageEntity language : languages){
             uniqueLanguages.add(language.getId().getLanguage());
         }
-        return uniqueLanguages;
+        return uniqueLanguages.stream().sorted().toList();
         //might need to change this needs testing
     }
 
@@ -345,14 +345,10 @@ public class WorldService {
     public List<CountryEntity> getAllCountriesByLanguage(String language){
         logger.info("Entered getAllCountriesByLanguage method");
         List<CountryEntity> countries = countryRepository.findAll();
+        List<CountrylanguageEntity> languages = countryLanguageRepository.findAll();
         return countries.stream().filter(country -> {
-            List<CountrylanguageEntity> languages = getCountryLanguagesByCountryCode(country.getCode());
-            for(int i = 0; i<languages.size(); i++ ){
-                if(languages.get(i).getId().getLanguage().equals(language)){
-                    return true;
-                }
-            }
-            return false;
+            List<CountrylanguageEntity> filteredList = languages.stream().filter(l -> Objects.equals(l.getId().getLanguage(), language)).toList();
+            return !filteredList.isEmpty();
         }).toList();
     }
 

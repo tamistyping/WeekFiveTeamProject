@@ -71,7 +71,7 @@ public class CountryController {
         return new ResponseEntity<>(CollectionModel.of(countries,WebMvcLinkBuilder.linkTo(methodOn(CountryController.class).getCountriesWithNoHeadOfStates()).withSelfRel()), HttpStatus.OK);
     }
 
-    @GetMapping("/country-with-most-cities")
+    @GetMapping("/with-most-cities")
     public ResponseEntity<EntityModel<CountryEntity>> getCountryWithMostCities() {
         EntityModel<CountryEntity> country = EntityModel.of
                 (worldService.getCountry(worldService
@@ -145,5 +145,4 @@ public class CountryController {
         return EntityModel.of(country, selfLink, relink).add(citiesLinks).add(languagesLinks);
     }
 
-    //todo Get Countries by language
 }
