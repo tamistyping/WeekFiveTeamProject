@@ -2,6 +2,7 @@ package com.sparta.zmsb.weekfiveteamproject.controllers;
 
 import com.sparta.zmsb.weekfiveteamproject.entities.CountryEntity;
 import com.sparta.zmsb.weekfiveteamproject.service.WorldService;
+import com.sparta.zmsb.weekfiveteamproject.updates.UpdateCountry;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.hateoas.CollectionModel;
@@ -34,7 +35,7 @@ public class CountryController {
                 .stream().map(
                         this::getCountryEntityModel)
                 .toList();
-        return new ResponseEntity(CollectionModel.of(countries,
+        return new ResponseEntity<>(CollectionModel.of(countries,
                 WebMvcLinkBuilder.linkTo(methodOn(CountryController.class).getAllCountries()).withSelfRel()), HttpStatus.OK);
     }
     @GetMapping("/{id}")
@@ -44,7 +45,7 @@ public class CountryController {
         }
         EntityModel<CountryEntity> country = EntityModel.of(worldService.getCountry(id));
         if(country.getContent() == null) {
-            return new ResponseEntity(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         else {
             return new ResponseEntity<>(country.add(citiesLinks(country.getContent())).add(languagesLinks(country.getContent())), HttpStatus.OK);
@@ -75,17 +76,18 @@ public class CountryController {
         return ResponseEntity.created(location).body(EntityModel.of(country).add(selfLink));
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<EntityModel<CountryEntity>> updateCountry(@RequestBody final CountryEntity country, @PathVariable final String id) {
+    @PutMapping("/{id}") //No HATEOAS as no content return
+    public ResponseEntity<EntityModel<CountryEntity>> updateCountry(@RequestBody @Valid CountryEntity country, @PathVariable final String id) {
+
         if(id.length()!=3){
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-        if(!Objects.equals(country.getCode(), id)){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         CountryEntity correspondingCountry = worldService.getCountry(id);
         if(correspondingCountry == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        if(!Objects.equals(id, country.getCode())){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         worldService.updateCountry(country);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
