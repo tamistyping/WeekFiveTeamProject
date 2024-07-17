@@ -33,19 +33,18 @@ public class CountryLanguageController {
         List<CountrylanguageEntity> languages = worldService.allLanguages();
         List<EntityModel<CountrylanguageEntity>> languageModels = languages.stream()
                 .map(language -> EntityModel.of(language,
-                        linkTo(methodOn(CountryLanguageController.class).getLanguageByCountryCode(language.getCountryCode().getCode())).withSelfRel(),
                         linkTo(methodOn(CountryLanguageController.class).getAllLanguages()).withRel("all-languages")))
                 .collect(Collectors.toList());
         return ResponseEntity.ok(languageModels);
     }
 
-    @GetMapping("/{countryCode}")
-    public ResponseEntity<CollectionModel<EntityModel<CountrylanguageEntity>>> getLanguageByCountryCode(@PathVariable String countryCode) {
-        List<CountrylanguageEntity> languages = worldService.getCountryLanguagesByCountryCode(countryCode);
+    @GetMapping("/{id}")
+    public ResponseEntity<CollectionModel<EntityModel<CountrylanguageEntity>>> getLanguageByCountryCode(@PathVariable CountrylanguageEntityId id) {
+        List<CountrylanguageEntity> languages = worldService.getCountryLanguagesByCountryCode(id.getCountryCode());
 
         List<EntityModel<CountrylanguageEntity>> languageModels = languages.stream()
                 .map(language -> EntityModel.of(language,
-                        WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(CountryLanguageController.class).getLanguageByCountryCode(countryCode)).withSelfRel(),
+                        WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(CountryLanguageController.class).getLanguageByCountryCode(id)).withSelfRel(),
                         WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(CountryLanguageController.class).getAllLanguages()).withRel("all-languages")))
                 .collect(Collectors.toList());
 
@@ -67,7 +66,7 @@ public class CountryLanguageController {
         CountrylanguageEntity savedEntity = worldService.saveCountryLanguage(newEntity);
 
         EntityModel<CountrylanguageEntity> entityModel = EntityModel.of(savedEntity,
-                linkTo(methodOn(CountryLanguageController.class).getLanguageByCountryCode(countryCode)).withRel("language"),
+                linkTo(methodOn(CountryLanguageController.class).getLanguageByCountryCode(newId)).withRel("language"),
                 linkTo(methodOn(CountryLanguageController.class).getAllLanguages()).withRel("all-languages"));
 
         return ResponseEntity.ok(entityModel);
