@@ -136,5 +136,7 @@ The following commands are operations you can perform with our API
   "percentage": 97.3
 }
 
+# API Key
+in order to create, update or delete any entity from the database, key validation is required.
 
 
