@@ -37,17 +37,15 @@ public class CityController {
         this.worldService = worldService;
     }
 
-    @Operation(summary = "Post endpoint", responses = {
-            @ApiResponse(responseCode = "200", description = "Successful post"),
-            @ApiResponse(responseCode = "404", description = "Resource not found")
-    })
+    @Operation(summary = "Post endpoint", responses = {@ApiResponse(responseCode = "200", description = "Successful post"), @ApiResponse(responseCode = "404", description = "Resource not found")})
+
     @PostMapping
     public ResponseEntity<EntityModel<CityEntity>> createCity(@RequestBody @Valid CityEntity cityEntity, HttpServletRequest request) {
         List<CountryEntity> countries = worldService.allCountries();
 
         countries = countries.stream().filter(c -> c.getCode().equals(cityEntity.getCountryCode().getCode())).toList();
 
-        if (!countries.getFirst().getCode().equals(cityEntity.getCountryCode().getCode()) ) {
+        if (!countries.getFirst().getCode().equals(cityEntity.getCountryCode().getCode())) {
             try {
                 throw new ResourceNotFoundException("Country with code: " + cityEntity.getCountryCode().getCode() + " does not exist");
             } catch (ResourceNotFoundException e) {
@@ -55,74 +53,38 @@ public class CityController {
             }
         }
 
-        List<EntityModel<CityEntity>> cityEntityModel = Stream.of(worldService.createCity(cityEntity))
-                .map(
-                        city ->
-                        {
-                            List<Link> countryLinks =
-                                    Stream.of(city.getCountryCode().getCode())
-                                            .map(
-                                                    code -> WebMvcLinkBuilder.linkTo(
-                                                            methodOn(CountryController.class).getCountry(city.getCountryCode().getCode())).withRel(city.getCountryCode().getName()))
-                                            .toList();
-                            Link selfLink = WebMvcLinkBuilder.linkTo(
-                                    methodOn(CityController.class).getCity(city.getId())).withSelfRel();
-                            Link relLink = WebMvcLinkBuilder.linkTo(
-                                    methodOn(CityController.class).getAllCities()).withRel("city");
-                            return EntityModel.of(city, selfLink, relLink).add(countryLinks);
-                        })
-                .toList();
+        List<EntityModel<CityEntity>> cityEntityModel = Stream.of(worldService.createCity(cityEntity)).map(city -> {
+            List<Link> countryLinks = Stream.of(city.getCountryCode().getCode()).map(code -> WebMvcLinkBuilder.linkTo(methodOn(CountryController.class).getCountry(city.getCountryCode().getCode())).withRel(city.getCountryCode().getName())).toList();
+            Link selfLink = WebMvcLinkBuilder.linkTo(methodOn(CityController.class).getCity(city.getId())).withSelfRel();
+            Link relLink = WebMvcLinkBuilder.linkTo(methodOn(CityController.class).getAllCities()).withRel("city");
+            return EntityModel.of(city, selfLink, relLink).add(countryLinks);
+        }).toList();
 
         URI location = URI.create(request.getRequestURL().toString() + "/" + cityEntity.getId());
 
         return ResponseEntity.created(location).body(cityEntityModel.getFirst());
     }
 
-    @Operation(summary = "Get endpoint", responses = {
-            @ApiResponse(responseCode = "200", description = "Successful get")
-    })
+    @Operation(summary = "Get endpoint", responses = {@ApiResponse(responseCode = "200", description = "Successful get")})
     @GetMapping
     public CollectionModel<EntityModel<CityEntity>> getAllCities() {
-        List<EntityModel<CityEntity>> cities = worldService.allCities()
-                .stream()
-                .map(
-                        city ->
-                        {
-                            List<Link> countryLinks =
-                                    Stream.of(city.getCountryCode().getCode())
-                                            .map(
-                                                    code -> WebMvcLinkBuilder.linkTo(
-                                                            methodOn(CountryController.class).getCountry(city.getCountryCode().getCode())).withRel(city.getCountryCode().getName()))
-                                            .toList();
-                            Link selfLink = WebMvcLinkBuilder.linkTo(
-                                    methodOn(CityController.class).getCity(city.getId())).withSelfRel();
-                            Link relLink = WebMvcLinkBuilder.linkTo(
-                                    methodOn(CityController.class).getAllCities()).withRel("city");
-                            return EntityModel.of(city, selfLink, relLink).add(countryLinks);
-                        })
-                .toList();
+        List<EntityModel<CityEntity>> cities = worldService.allCities().stream().map(city -> {
+            List<Link> countryLinks = Stream.of(city.getCountryCode().getCode()).map(code -> WebMvcLinkBuilder.linkTo(methodOn(CountryController.class).getCountry(city.getCountryCode().getCode())).withRel(city.getCountryCode().getName())).toList();
+            Link selfLink = WebMvcLinkBuilder.linkTo(methodOn(CityController.class).getCity(city.getId())).withSelfRel();
+            Link relLink = WebMvcLinkBuilder.linkTo(methodOn(CityController.class).getAllCities()).withRel("city");
+            return EntityModel.of(city, selfLink, relLink).add(countryLinks);
+        }).toList();
         return CollectionModel.of(cities, WebMvcLinkBuilder.linkTo(methodOn(CityController.class).getAllCities()).withSelfRel());
     }
 
     @GetMapping("/{id}")
     public CollectionModel<EntityModel<CityEntity>> getCity(@PathVariable @Valid Integer id) {
-        List<EntityModel<CityEntity>> cityEntityModel = Stream.of(worldService.getCityById(id))
-                .map(
-                        city ->
-                        {
-                            List<Link> countryLinks =
-                                    Stream.of(city.getCountryCode().getCode())
-                                            .map(
-                                                    code -> WebMvcLinkBuilder.linkTo(
-                                                            methodOn(CountryController.class).getCountry(city.getCountryCode().getCode())).withRel(city.getCountryCode().getName()))
-                                            .toList();
-                            Link selfLink = WebMvcLinkBuilder.linkTo(
-                                    methodOn(CityController.class).getCity(city.getId())).withSelfRel();
-                            Link relLink = WebMvcLinkBuilder.linkTo(
-                                    methodOn(CityController.class).getAllCities()).withRel("city");
-                            return EntityModel.of(city, selfLink, relLink).add(countryLinks);
-                        })
-                .toList();
+        List<EntityModel<CityEntity>> cityEntityModel = Stream.of(worldService.getCityById(id)).map(city -> {
+            List<Link> countryLinks = Stream.of(city.getCountryCode().getCode()).map(code -> WebMvcLinkBuilder.linkTo(methodOn(CountryController.class).getCountry(city.getCountryCode().getCode())).withRel(city.getCountryCode().getName())).toList();
+            Link selfLink = WebMvcLinkBuilder.linkTo(methodOn(CityController.class).getCity(city.getId())).withSelfRel();
+            Link relLink = WebMvcLinkBuilder.linkTo(methodOn(CityController.class).getAllCities()).withRel("city");
+            return EntityModel.of(city, selfLink, relLink).add(countryLinks);
+        }).toList();
         return CollectionModel.of(cityEntityModel, WebMvcLinkBuilder.linkTo(methodOn(CityController.class).getAllCities()).withSelfRel());
     }
 
@@ -146,7 +108,7 @@ public class CityController {
             } catch (ResourceNotFoundException e) {
                 throw new RuntimeException(e);
             }
-        } else if (!countries.getFirst().getCode().equals(cityEntity.getCountryCode().getCode()) ) {
+        } else if (!countries.getFirst().getCode().equals(cityEntity.getCountryCode().getCode())) {
             try {
                 throw new ResourceNotFoundException("Country with code: " + cityEntity.getCountryCode().getCode() + " does not exist");
             } catch (ResourceNotFoundException e) {
