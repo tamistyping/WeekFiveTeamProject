@@ -47,7 +47,10 @@ public class CountryController {
         if(c==null){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        EntityModel<CountryEntity> country = EntityModel.of(worldService.getCountry(id));
+        EntityModel<CountryEntity> country = EntityModel.of(
+                worldService.getCountry(id),
+                WebMvcLinkBuilder.linkTo(methodOn(CountryController.class).getCountry(id)).withSelfRel(),
+                WebMvcLinkBuilder.linkTo(methodOn(CountryController.class).getAllCountries()).withRel("All countries"));
         return new ResponseEntity<>(country.add(citiesLinks(country.getContent())).add(languagesLinks(country.getContent())), HttpStatus.OK);
 
     }
@@ -141,7 +144,7 @@ public class CountryController {
         List<Link> citiesLinks = citiesLinks(country);
         List<Link> languagesLinks = languagesLinks(country);
         Link selfLink = WebMvcLinkBuilder.linkTo(methodOn(CountryController.class).getCountry(country.getCode())).withSelfRel();
-        Link relink = WebMvcLinkBuilder.linkTo(methodOn(CountryController.class).getAllCountries()).withRel("country");
+        Link relink = WebMvcLinkBuilder.linkTo(methodOn(CountryController.class).getAllCountries()).withRel("All countries");
         return EntityModel.of(country, selfLink, relink).add(citiesLinks).add(languagesLinks);
     }
 

@@ -5,6 +5,8 @@ import com.sparta.zmsb.weekfiveteamproject.entities.CountryEntity;
 import com.sparta.zmsb.weekfiveteamproject.entities.CountrylanguageEntity;
 import com.sparta.zmsb.weekfiveteamproject.entities.CountrylanguageEntityId;
 import com.sparta.zmsb.weekfiveteamproject.service.WorldService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
@@ -14,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -79,25 +82,19 @@ public class CountryLanguageController {
         }
     }
 
-    @PostMapping("/secure/{countryCode}/{newLanguage}")
+    @PostMapping("/secure")
     public ResponseEntity<EntityModel<CountrylanguageEntity>> createLanguage(
-            @PathVariable String countryCode,
-            @PathVariable String newLanguage,
-            @RequestBody CountrylanguageEntity newEntity) {
+            @RequestBody @Valid CountrylanguageEntity newEntity, HttpServletRequest request) {
 
-        CountrylanguageEntityId newId = new CountrylanguageEntityId();
-        newId.setCountryCode(countryCode);
-        newId.setLanguage(newLanguage);
-
-        newEntity.setId(newId);
 
         CountrylanguageEntity savedEntity = worldService.saveCountryLanguage(newEntity);
 
         EntityModel<CountrylanguageEntity> entityModel = EntityModel.of(savedEntity,
-                linkTo(methodOn(CountryLanguageController.class).getLanguageByCountryCode(newId.getCountryCode())).withRel("language"),
+                linkTo(methodOn(CountryLanguageController.class).getLanguageByCountryCode(savedEntity.getId().getCountryCode())).withRel("language"),
                 linkTo(methodOn(CountryLanguageController.class).getAllLanguages()).withRel("all-languages"));
 
-        return ResponseEntity.ok(entityModel);
+        URI location = URI.create(request.getRequestURL().toString() + "/" + newEntity.getCountryCode().getCode() + "/" + savedEntity.getId().getLanguage());
+        return ResponseEntity.created(location).body(entityModel);
     }
     @PutMapping("/secure/{countryCode}/update/{langauge}")
     public ResponseEntity<EntityModel<CountrylanguageEntity>> updateLanguage(
