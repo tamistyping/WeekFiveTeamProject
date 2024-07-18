@@ -96,16 +96,30 @@ public class CountryLanguageController {
         URI location = URI.create(request.getRequestURL().toString() + "/" + newEntity.getCountryCode().getCode() + "/" + savedEntity.getId().getLanguage());
         return ResponseEntity.created(location).body(entityModel);
     }
-    @PutMapping("/secure/{countryCode}/update/{langauge}")
+    @PutMapping("/secure/{countryCode}/{language}")
     public ResponseEntity<EntityModel<CountrylanguageEntity>> updateLanguage(
             @PathVariable String countryCode,
-            @PathVariable String updatedLanguage,
+            @PathVariable String language,
             @RequestBody CountrylanguageEntity newEntity
     ){
-        CountrylanguageEntityId newId = new CountrylanguageEntityId();
-        worldService.updateCountryLanguageEntity(newEntity);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-
+        boolean isLanguagePresent = false;
+        if(!countryCode.equals(newEntity.getCountryCode().getCode())){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        List<CountrylanguageEntity> languages = worldService.getCountryLanguagesByCountryCode(countryCode);
+        for(CountrylanguageEntity lang : languages){
+            if(lang.getId().getLanguage().equals(language)){
+                isLanguagePresent = true;
+                worldService.deleteCountryLanguageEntity(lang);
+            }
+        }
+        if(isLanguagePresent){
+            worldService.updateCountryLanguageEntity(newEntity);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+        else {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
 
     @DeleteMapping("/secure/{countrycode}/{language}")
@@ -133,7 +147,6 @@ public class CountryLanguageController {
         return worldService.getAllCountriesByLanguage(language).stream().map(
                 country -> WebMvcLinkBuilder.linkTo(
                         methodOn(CountryController.class).getCountry(country.getCode())).withRel(country.getName())).toList();
-}
-    //todo get all languages independent of country links to which countries speak it?
+    }
 
 }
