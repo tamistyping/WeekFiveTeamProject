@@ -2,7 +2,10 @@ package com.sparta.zmsb.weekfiveteamproject.controllers;
 
 import com.sparta.zmsb.weekfiveteamproject.entities.CityEntity;
 import com.sparta.zmsb.weekfiveteamproject.entities.CountryEntity;
+import com.sparta.zmsb.weekfiveteamproject.exceptions.ResourceNotFoundException;
 import com.sparta.zmsb.weekfiveteamproject.service.WorldService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
@@ -25,12 +28,19 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @RequestMapping("/api/cities")
 public class CityController {
 
+    // Make certain paths secure
+    // Add swagger annotations to code here
+
     private final WorldService worldService;
 
     public CityController(WorldService worldService) {
         this.worldService = worldService;
     }
 
+    @Operation(summary = "Post endpoint", responses = {
+            @ApiResponse(responseCode = "200", description = "Successful post"),
+            @ApiResponse(responseCode = "404", description = "Resource not found")
+    })
     @PostMapping
     public ResponseEntity<EntityModel<CityEntity>> createCity(@RequestBody @Valid CityEntity cityEntity, HttpServletRequest request) {
         List<CountryEntity> countries = worldService.allCountries();
@@ -68,6 +78,9 @@ public class CityController {
         return ResponseEntity.created(location).body(cityEntityModel.getFirst());
     }
 
+    @Operation(summary = "Get endpoint", responses = {
+            @ApiResponse(responseCode = "200", description = "Successful get")
+    })
     @GetMapping
     public CollectionModel<EntityModel<CityEntity>> getAllCities() {
         List<EntityModel<CityEntity>> cities = worldService.allCities()
@@ -119,6 +132,7 @@ public class CityController {
         List<CountryEntity> countries = worldService.allCountries();
 
         countries = countries.stream().filter(c -> c.getCode().equals(cityEntity.getCountryCode().getCode())).toList();
+        cities = cities.stream().filter(c -> c.getId().equals(cityEntity.getId())).toList();
 
         if (!id.equals(cityEntity.getId())) {
             try {
@@ -126,7 +140,7 @@ public class CityController {
             } catch (InvalidEndpointException e) {
                 throw new RuntimeException(e);
             }
-        } else if (!cities.contains(cityEntity)) {
+        } else if (cities.isEmpty()) {
             try {
                 throw new ResourceNotFoundException("City ID: " + cityEntity.getId() + " does not exist");
             } catch (ResourceNotFoundException e) {
@@ -153,15 +167,12 @@ public class CityController {
                 throw new RuntimeException(e);
             }
         }
+        worldService.deleteCity(id);
         return ResponseEntity.noContent().build();
     }
 
 
     // Temporary classes - waiting for Tam (MVP+)
-    private static class ResourceNotFoundException extends Throwable {
-        public ResourceNotFoundException(String s) {
-        }
-    }
 
     private static class InvalidEndpointException extends Throwable {
         public InvalidEndpointException(String s) {

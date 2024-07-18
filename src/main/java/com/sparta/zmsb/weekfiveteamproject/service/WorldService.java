@@ -205,8 +205,10 @@ public class WorldService {
         return cityRepository.findById(id).orElse(null);
     }
     //Update
+    @Transactional
     public CityEntity updateCity(CityEntity city) {
-        return new CityUpdate().updateCity(city.getId(), city.getName(), city.getDistrict(), city.getPopulation());
+//        return new CityUpdate().updateCity(city.getId(), city.getName(), city.getDistrict(), city.getPopulation());
+        return cityRepository.saveAndFlush(city);
     }
 
     // Read
