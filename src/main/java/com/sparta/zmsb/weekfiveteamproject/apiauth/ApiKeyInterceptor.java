@@ -15,9 +15,9 @@ public class ApiKeyInterceptor implements HandlerInterceptor {
 
     private static final Logger logger = AppLogger.getLogger();
 
-    @Autowired
-    private ApiKeyConfig apiKeyConfig;
+    private final ApiKeyConfig apiKeyConfig;
 
+    @Autowired
     public ApiKeyInterceptor(ApiKeyConfig apiKeyConfig) {
         this.apiKeyConfig = apiKeyConfig;
     }
