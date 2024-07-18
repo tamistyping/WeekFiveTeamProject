@@ -1,7 +1,7 @@
 package com.sparta.zmsb.weekfiveteamproject.apiauth;
 
-import com.sparta.zmsb.weekfiveteamproject.config.ApiKeyConfig;
 import com.sparta.zmsb.weekfiveteamproject.logging.AppLogger;
+import com.sparta.zmsb.weekfiveteamproject.service.KeyService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,18 +15,19 @@ public class ApiKeyInterceptor implements HandlerInterceptor {
 
     private static final Logger logger = AppLogger.getLogger();
 
-    private final ApiKeyConfig apiKeyConfig;
+
+    private final KeyService keyService;
 
     @Autowired
-    public ApiKeyInterceptor(ApiKeyConfig apiKeyConfig) {
-        this.apiKeyConfig = apiKeyConfig;
+    public ApiKeyInterceptor(KeyService keyService) {
+        this.keyService = keyService;
     }
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler){
         logger.info("Entered preHandle method");
         String requestApiKey = request.getHeader("x-api-key");
-        if(apiKeyConfig.getApiKey().equals(requestApiKey)) {
+        if(keyService.isValidApiKey(requestApiKey)) {
             return true;
         }
         else {
