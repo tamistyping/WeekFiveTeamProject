@@ -64,7 +64,7 @@ public class CountryController {
         }
     }
 
-    @GetMapping("/secure/with-no-head-of-state")
+    @GetMapping("/with-no-head-of-state")
     public ResponseEntity<CollectionModel<EntityModel<CountryEntity>>> getCountriesWithNoHeadOfStates() {
         List<EntityModel<CountryEntity>> countries = worldService.countriesWithNoHeadOfState().stream()
                 .map(this::getCountryEntityModel).toList();

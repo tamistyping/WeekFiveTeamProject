@@ -79,8 +79,8 @@ public class CountryLanguageController {
         }
     }
 
-    @PostMapping("/{countryCode}/{newLanguage}")
-    public ResponseEntity<EntityModel<CountrylanguageEntity>> updateLanguage(
+    @PostMapping("/secure/{countryCode}/{newLanguage}")
+    public ResponseEntity<EntityModel<CountrylanguageEntity>> createLanguage(
             @PathVariable String countryCode,
             @PathVariable String newLanguage,
             @RequestBody CountrylanguageEntity newEntity) {
@@ -98,6 +98,38 @@ public class CountryLanguageController {
                 linkTo(methodOn(CountryLanguageController.class).getAllLanguages()).withRel("all-languages"));
 
         return ResponseEntity.ok(entityModel);
+    }
+    @PutMapping("/secure/{countryCode}/update/{langauge}")
+    public ResponseEntity<EntityModel<CountrylanguageEntity>> updateLanguage(
+            @PathVariable String countryCode,
+            @PathVariable String updatedLanguage,
+            @RequestBody CountrylanguageEntity newEntity
+    ){
+        CountrylanguageEntityId newId = new CountrylanguageEntityId();
+        worldService.updateCountryLanguageEntity(newEntity);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+
+    }
+
+    @DeleteMapping("/secure/{countrycode}/{language}")
+    public ResponseEntity<EntityModel<CountrylanguageEntity>> deleteLanguage(@PathVariable String countrycode, @PathVariable String language) {
+        if(countrycode.length() != 3){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        CountryEntity c = worldService.getCountry(countrycode);
+        if(c==null){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        List<CountrylanguageEntity> countrylanguageEntities = worldService.getCountryLanguagesByCountryCode(countrycode);
+        if(countrylanguageEntities.isEmpty()){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        for(CountrylanguageEntity countrylanguageEntity : countrylanguageEntities){
+            if(countrylanguageEntity.getId().getLanguage().equals(language)){
+                worldService.deleteCountryLanguageEntity(countrylanguageEntity);
+            }
+        }
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     private List<Link> countriesLinks(String language){
