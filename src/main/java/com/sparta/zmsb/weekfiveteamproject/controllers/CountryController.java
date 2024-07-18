@@ -64,7 +64,7 @@ public class CountryController {
         }
     }
 
-    @GetMapping("/with-no-head-of-state")
+    @GetMapping("/secure/with-no-head-of-state")
     public ResponseEntity<CollectionModel<EntityModel<CountryEntity>>> getCountriesWithNoHeadOfStates() {
         List<EntityModel<CountryEntity>> countries = worldService.countriesWithNoHeadOfState().stream()
                 .map(this::getCountryEntityModel).toList();
@@ -80,7 +80,7 @@ public class CountryController {
         return new ResponseEntity<>(country.add(citiesLinks(country.getContent())), HttpStatus.OK);
     }
 
-    @PostMapping
+    @PostMapping("/secure")
     public ResponseEntity<EntityModel<CountryEntity>> createCountry(@RequestBody @Valid CountryEntity country, HttpServletRequest request) {
 
         Optional<CountryEntity> checkCode = worldService.allCountries().stream().filter(c-> c.getCode().equals(country.getCode())).toList().stream().findFirst();
@@ -93,7 +93,7 @@ public class CountryController {
         return ResponseEntity.created(location).body(EntityModel.of(country).add(selfLink));
     }
 
-    @PutMapping("/{id}") //No HATEOAS as no content return
+    @PutMapping("/secure/{id}") //No HATEOAS as no content return
     public ResponseEntity<EntityModel<CountryEntity>> updateCountry(@RequestBody @Valid CountryEntity country, @PathVariable final String id) {
 
         if(id.length()!=3){
@@ -110,7 +110,7 @@ public class CountryController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @DeleteMapping("/{id}") //No HATEOAS as no content return
+    @DeleteMapping("/secure/{id}") //No HATEOAS as no content return
     public ResponseEntity<CountryEntity> deleteCountry(@PathVariable final String id) {
         if(id.length()!=3){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
