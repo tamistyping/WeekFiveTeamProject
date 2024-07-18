@@ -43,23 +43,12 @@ public class CityController {
             }
         }
 
-        List<EntityModel<CityEntity>> cityEntityModel = Stream.of(worldService.createCity(cityEntity))
-                .map(
-                        city ->
-                        {
-                            List<Link> countryLinks =
-                                    Stream.of(city.getCountryCode().getCode())
-                                            .map(
-                                                    code -> WebMvcLinkBuilder.linkTo(
-                                                            methodOn(CountryController.class).getCountry(city.getCountryCode().getCode())).withRel(city.getCountryCode().getName()))
-                                            .toList();
-                            Link selfLink = WebMvcLinkBuilder.linkTo(
-                                    methodOn(CityController.class).getCity(city.getId())).withSelfRel();
-                            Link relLink = WebMvcLinkBuilder.linkTo(
-                                    methodOn(CityController.class).getAllCities()).withRel("city");
-                            return EntityModel.of(city, selfLink, relLink).add(countryLinks);
-                        })
-                .toList();
+        List<EntityModel<CityEntity>> cityEntityModel = Stream.of(worldService.createCity(cityEntity)).map(city -> {
+            List<Link> countryLinks = Stream.of(city.getCountryCode().getCode()).map(code -> WebMvcLinkBuilder.linkTo(methodOn(CountryController.class).getCountry(city.getCountryCode().getCode())).withRel(city.getCountryCode().getName())).toList();
+            Link selfLink = WebMvcLinkBuilder.linkTo(methodOn(CityController.class).getCity(city.getId())).withSelfRel();
+            Link relLink = WebMvcLinkBuilder.linkTo(methodOn(CityController.class).getAllCities()).withRel("city");
+            return EntityModel.of(city, selfLink, relLink).add(countryLinks);
+        }).toList();
 
         URI location = URI.create(request.getRequestURL().toString() + "/" + cityEntity.getId());
 
@@ -68,46 +57,23 @@ public class CityController {
 
     @GetMapping
     public CollectionModel<EntityModel<CityEntity>> getAllCities() {
-        List<EntityModel<CityEntity>> cities = worldService.allCities()
-                .stream()
-                .map(
-                        city ->
-                        {
-                            List<Link> countryLinks =
-                                    Stream.of(city.getCountryCode().getCode())
-                                            .map(
-                                                    code -> WebMvcLinkBuilder.linkTo(
-                                                            methodOn(CountryController.class).getCountry(city.getCountryCode().getCode())).withRel(city.getCountryCode().getName()))
-                                            .toList();
-                            Link selfLink = WebMvcLinkBuilder.linkTo(
-                                    methodOn(CityController.class).getCity(city.getId())).withSelfRel();
-                            Link relLink = WebMvcLinkBuilder.linkTo(
-                                    methodOn(CityController.class).getAllCities()).withRel("city");
-                            return EntityModel.of(city, selfLink, relLink).add(countryLinks);
-                        })
-                .toList();
+        List<EntityModel<CityEntity>> cities = worldService.allCities().stream().map(city -> {
+            List<Link> countryLinks = Stream.of(city.getCountryCode().getCode()).map(code -> WebMvcLinkBuilder.linkTo(methodOn(CountryController.class).getCountry(city.getCountryCode().getCode())).withRel(city.getCountryCode().getName())).toList();
+            Link selfLink = WebMvcLinkBuilder.linkTo(methodOn(CityController.class).getCity(city.getId())).withSelfRel();
+            Link relLink = WebMvcLinkBuilder.linkTo(methodOn(CityController.class).getAllCities()).withRel("city");
+            return EntityModel.of(city, selfLink, relLink).add(countryLinks);
+        }).toList();
         return CollectionModel.of(cities, WebMvcLinkBuilder.linkTo(methodOn(CityController.class).getAllCities()).withSelfRel());
     }
 
     @GetMapping("/{id}")
     public CollectionModel<EntityModel<CityEntity>> getCity(@PathVariable @Valid Integer id) {
-        List<EntityModel<CityEntity>> cityEntityModel = Stream.of(worldService.getCityById(id))
-                .map(
-                        city ->
-                        {
-                            List<Link> countryLinks =
-                                    Stream.of(city.getCountryCode().getCode())
-                                            .map(
-                                                    code -> WebMvcLinkBuilder.linkTo(
-                                                            methodOn(CountryController.class).getCountry(city.getCountryCode().getCode())).withRel(city.getCountryCode().getName()))
-                                            .toList();
-                            Link selfLink = WebMvcLinkBuilder.linkTo(
-                                    methodOn(CityController.class).getCity(city.getId())).withSelfRel();
-                            Link relLink = WebMvcLinkBuilder.linkTo(
-                                    methodOn(CityController.class).getAllCities()).withRel("city");
-                            return EntityModel.of(city, selfLink, relLink).add(countryLinks);
-                        })
-                .toList();
+        List<EntityModel<CityEntity>> cityEntityModel = Stream.of(worldService.getCityById(id)).map(city -> {
+            List<Link> countryLinks = Stream.of(city.getCountryCode().getCode()).map(code -> WebMvcLinkBuilder.linkTo(methodOn(CountryController.class).getCountry(city.getCountryCode().getCode())).withRel(city.getCountryCode().getName())).toList();
+            Link selfLink = WebMvcLinkBuilder.linkTo(methodOn(CityController.class).getCity(city.getId())).withSelfRel();
+            Link relLink = WebMvcLinkBuilder.linkTo(methodOn(CityController.class).getAllCities()).withRel("city");
+            return EntityModel.of(city, selfLink, relLink).add(countryLinks);
+        }).toList();
         return CollectionModel.of(cityEntityModel, WebMvcLinkBuilder.linkTo(methodOn(CityController.class).getAllCities()).withSelfRel());
     }
 
