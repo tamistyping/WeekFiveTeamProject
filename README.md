@@ -42,3 +42,99 @@ Following on from the last project, you have been asked to creat a RESTful API t
 In addition, you will need to research how to do the following:
 - Secure the endpoints using an API key. Someone without the key with only be able to read data (Not using Spring Security)
 - Use Swagger UI to provide a graphical interface to your API
+
+## API functionality
+The following commands are operations you can perform with our API
+
+- /api/countries (with GET request gets all countries from world database)
+- /api/countries/{id} (with GET request and id being a 3 character country code, retrieves specific country)
+- /api/countries/languages/{language} (with GET request and id being a language, retrieves all countries that speak that language)
+- /api/countries/with-no-head-of-state (with GET request retrieves all countries that have no head of state)
+- /api/countries/with-most-cities (with GET request retrieves the country with the most cities (currently China))
+- /api/countries/secure (with POST request and countryEntity body creates a new country)
+- /api/countries/secure/{id} (with PUT request and countryEntity body updates an existing country by given three character country code, with DELETE request deletes given country by given country code)
+- /api/cities (with GET request gets all cities from world database)
+- /api/cities/{id} (with GET request gets city matching given id, city id is between 1 and 4 digits)
+- /api/cities/secure (with POST request and CityEntity body creates a new city)
+- /api/cities/secure/{id} (with PUT request and cityEntity body updates an existing country by given 1-4 digit id, with DELETE request deletes given city by given id)
+- /api/languages (with GET request retrieves all languages spoken by each country)
+- /api/languages/all-languages (with GET request lists all unique languages in the world database)
+- /api/languages/{id} (with GET request and id being a 3 character country code, retrieves specific country and its languages)
+- /api/languages/{id}/{language} (with GET request and id being a 3 character country code, and language being a language, retrieves the language)
+- /api/languages/secure (with POST request and countryLanguageEntity body creates a new language)
+- /api/languages/secure/{id}/{language} (with PUT request and id being a 3 character country code, and language being a language, updates the language, with DELETE request deletes the language)
+
+# example bodies
+
+- new/update country
+  {
+  "code":"GMC",
+  "name":"Grand Monarchy of Chris",
+  "continent":"Europe",
+  "region":"Southern Europe",
+  "surfaceArea": 468.00,
+  "indepYear": 1995,
+  "population": 2000000,
+  "lifeExpectancy": 90.5,
+  "gnp": 2000,
+  "localName": "Best Country Ever",
+  "governmentForm": "Absolute Monarchy",
+  "headOfState": "Chris",
+  "capital": null,
+  "code2": "MC",
+  "gnpold": null
+}
+
+- new/update city
+  {
+  "name":"Monarchia",
+  "countryCode":{
+    "code": "GMC",
+    "name": "Grand Monarchy of Chris",
+    "continent": "Europe",
+    "region": "Southern Europe",
+    "surfaceArea": 468.00,
+    "indepYear": 1995,
+    "population": 2000000,
+    "lifeExpectancy": 90.5,
+    "gnp": 2000.00,
+    "localName": "Best Country Ever",
+    "governmentForm": "Absolute Monarchy",
+    "headOfState": "Chris",
+    "capital": null,
+    "code2": "MC",
+    "gnpold": null
+  },
+  "district":"Monarchia",
+  "population":2000000
+}
+
+- new/update language
+{
+  "id": {
+    "countryCode":"GMC",
+    "language": "English"
+  },
+  "countryCode":{
+    "code": "GMC",
+    "name": "Grand Monarchy of Chris",
+    "continent": "Europe",
+    "region": "Southern Europe",
+    "surfaceArea": 468.00,
+    "indepYear": 1995,
+    "population": 2000000,
+    "lifeExpectancy": 90.5,
+    "gnp": 2000.00,
+    "localName": "Best Country Ever",
+    "governmentForm": "Absolute Monarchy",
+    "headOfState": "Chris",
+    "capital": null,
+    "code2": "MC",
+    "gnpold": null
+  },
+  "isOfficial": "T",
+  "percentage": 97.3
+}
+
+
+
