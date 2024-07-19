@@ -2,10 +2,11 @@ package com.sparta.zmsb.weekfiveteamproject.controllers;
 
 import com.sparta.zmsb.weekfiveteamproject.entities.CityEntity;
 import com.sparta.zmsb.weekfiveteamproject.entities.CountryEntity;
-import com.sparta.zmsb.weekfiveteamproject.exceptions.InvalidInputException;
+import com.sparta.zmsb.weekfiveteamproject.exceptions.InvalidEndpointException;
 import com.sparta.zmsb.weekfiveteamproject.exceptions.ResourceNotFoundException;
 import com.sparta.zmsb.weekfiveteamproject.service.WorldService;
-import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import com.sparta.zmsb.weekfiveteamproject.exceptions.InvalidInputException;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
@@ -28,19 +29,15 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @RestController
 @RequestMapping("/api/cities")
 public class CityController {
-
-    // Make certain paths secure
-    // Add swagger annotations to code here
-
+  
     private final WorldService worldService;
 
     public CityController(WorldService worldService) {
         this.worldService = worldService;
     }
 
-    @Operation(summary = "Post endpoint", responses = {@ApiResponse(responseCode = "200", description = "Successful post"), @ApiResponse(responseCode = "404", description = "Resource not found")})
-    @PostMapping("/secure/new")
-    public ResponseEntity<EntityModel<CityEntity>> createCity(@RequestBody @Valid CityEntity cityEntity, HttpServletRequest request) {
+ @PostMapping("/secure/new")
+    public ResponseEntity<EntityModel<CityEntity>> createCity(@Parameter(name = "x-api-key", description = "header", required = true) @RequestHeader("x-api-key") String apiKey, @RequestBody @Valid CityEntity cityEntity, HttpServletRequest request) {
         List<CountryEntity> countries = worldService.allCountries();
 
         countries = countries.stream().filter(c -> c.getCode().equals(cityEntity.getCountryCode().getCode())).toList();
@@ -61,9 +58,7 @@ public class CityController {
         return ResponseEntity.created(location).body(cityEntityModel.getFirst());
     }
 
-    @Operation(summary = "Get endpoint", responses = {@ApiResponse(responseCode = "200", description = "Successful get")})
     @GetMapping("/search")
-
     public CollectionModel<EntityModel<CityEntity>> getAllCities() {
         List<EntityModel<CityEntity>> cities = worldService.allCities().stream().map(city -> {
             List<Link> countryLinks = Stream.of(city.getCountryCode().getCode()).map(code -> WebMvcLinkBuilder.linkTo(methodOn(CountryController.class).getCountry(city.getCountryCode().getCode())).withRel(city.getCountryCode().getName())).toList();
@@ -91,8 +86,20 @@ public class CityController {
         return CollectionModel.of(cityEntityModel, WebMvcLinkBuilder.linkTo(methodOn(CityController.class).getAllCities()).withSelfRel());
     }
 
+    @GetMapping("/districts-with-lowest-population")
+    public String getDistrictsWithLowestPopulation() {
+//        List<EntityModel<CityEntity>> cities = worldService.allCities().stream().map(city -> {
+//            List<Link> countryLinks = Stream.of(city.getCountryCode().getCode()).map(code -> WebMvcLinkBuilder.linkTo(methodOn(CountryController.class).getCountry(city.getCountryCode().getCode())).withRel(city.getCountryCode().getName())).toList();
+//            Link selfLink = WebMvcLinkBuilder.linkTo(methodOn(CityController.class).getCity(city.getId())).withSelfRel();
+//            Link relLink = WebMvcLinkBuilder.linkTo(methodOn(CityController.class).getAllCities()).withRel("city");
+//            return EntityModel.of(city, selfLink, relLink).add(countryLinks);
+//        }).toList();
+//        return CollectionModel.of(cities, WebMvcLinkBuilder.linkTo(methodOn(CityController.class).getAllCities()).withSelfRel());
+        return worldService.getSmallestDistrictsByPopulation();
+    }
+
     @PutMapping("/secure/update/{id}")
-    public ResponseEntity<EntityModel<CityEntity>> updateCity(@PathVariable @Valid Integer id, @RequestBody @Valid CityEntity cityEntity) {
+    public ResponseEntity<EntityModel<CityEntity>> updateCity(@Parameter(name = "x-api-key", description = "header", required = true) @RequestHeader("x-api-key") String apiKey, @PathVariable @Valid Integer id, @RequestBody @Valid CityEntity cityEntity) {
 
         if (!id.equals(cityEntity.getId())) {
             throw new InvalidInputException("City ID in path: " + id + " does not match ID in payload: " + cityEntity.getId());
@@ -105,32 +112,19 @@ public class CityController {
         cities = cities.stream().filter(c -> c.getId().equals(cityEntity.getId())).toList();
 
         if (!id.equals(cityEntity.getId())) {
-            try {
-                throw new ResourceNotFoundException("City ID: " + cityEntity.getId() + " does not match the endpoint ID: " + id);
-            } catch (ResourceNotFoundException e) {
-                throw new RuntimeException(e);
-            }
+            throw new InvalidEndpointException("City ID: " + cityEntity.getId() + " does not match the endpoint ID: " + id);
         } else if (cities.isEmpty()) {
-            try {
-                throw new ResourceNotFoundException("City ID: " + cityEntity.getId() + " does not exist");
-            } catch (ResourceNotFoundException e) {
-                throw new RuntimeException(e);
-            }
-        } else if (!countries.getFirst().getCode().equals(cityEntity.getCountryCode().getCode())) {
-            try {
-                throw new ResourceNotFoundException("Country with code: " + cityEntity.getCountryCode().getCode() + " does not exist");
-            } catch (ResourceNotFoundException e) {
-                throw new RuntimeException(e);
-            }
+            throw new ResourceNotFoundException("City ID: " + cityEntity.getId() + " does not exist");
+        } else if (countries.isEmpty()) {
+            throw new ResourceNotFoundException("Country with code: " + cityEntity.getCountryCode().getCode() + " does not exist");
         } else {
             worldService.updateCity(cityEntity);
             return ResponseEntity.noContent().build();
         }
     }
 
-
     @DeleteMapping("/secure/delete/{id}")
-    public ResponseEntity<CollectionModel<EntityModel<CityEntity>>> deleteCity(@PathVariable @Valid Integer id) {
+    public ResponseEntity<CollectionModel<EntityModel<CityEntity>>> deleteCity(@Parameter(name = "x-api-key", description = "header", required = true) @RequestHeader("x-api-key") String apiKey, @PathVariable @Valid Integer id) {
         CityEntity city = worldService.getCityById(id);
         if (city == null) {
             throw new ResourceNotFoundException("City with ID: " + id + " not found");
@@ -139,13 +133,6 @@ public class CityController {
         worldService.deleteCity(id);
 
         return ResponseEntity.noContent().build();
-    }
-
-    // Temporary classes - waiting for Tam (MVP+)
-
-    private static class InvalidEndpointException extends Throwable {
-        public InvalidEndpointException(String s) {
-        }
     }
 
 }
