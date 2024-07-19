@@ -2,6 +2,8 @@ package com.sparta.zmsb.weekfiveteamproject.controllers;
 
 import com.sparta.zmsb.weekfiveteamproject.entities.CountryEntity;
 import com.sparta.zmsb.weekfiveteamproject.service.WorldService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.hateoas.CollectionModel;
@@ -96,8 +98,9 @@ public class CountryController {
         return new ResponseEntity<>(country.add(citiesLinks(country.getContent())), HttpStatus.OK);
     }
 
+    @Operation
     @PostMapping("/secure/new")
-    public ResponseEntity<EntityModel<CountryEntity>> createCountry(@RequestBody @Valid CountryEntity country, HttpServletRequest request) {
+    public ResponseEntity<EntityModel<CountryEntity>> createCountry(@Parameter(name = "x-api-key", description = "header", required = true) @RequestHeader("x-api-key") String apiKey, @RequestBody @Valid CountryEntity country, HttpServletRequest request) {
 
         Optional<CountryEntity> checkCode = worldService.allCountries().stream().filter(c-> c.getCode().equals(country.getCode())).toList().stream().findFirst();
         if(checkCode.isPresent()){
@@ -110,7 +113,7 @@ public class CountryController {
     }
 
     @PutMapping("/secure/update/{id}") //No HATEOAS as no content return
-    public ResponseEntity<EntityModel<CountryEntity>> updateCountry(@RequestBody @Valid CountryEntity country, @PathVariable final String id) {
+    public ResponseEntity<EntityModel<CountryEntity>> updateCountry(@Parameter(name = "x-api-key", description = "header", required = true) @RequestHeader("x-api-key") String apiKey,@RequestBody @Valid CountryEntity country, @PathVariable final String id) {
 
         if(id.length()!=3){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -127,7 +130,7 @@ public class CountryController {
     }
 
     @DeleteMapping("/secure/delete/{id}") //No HATEOAS as no content return
-    public ResponseEntity<CountryEntity> deleteCountry(@PathVariable final String id) {
+    public ResponseEntity<CountryEntity> deleteCountry(@Parameter(name = "x-api-key", description = "header", required = true) @RequestHeader("x-api-key") String apiKey, @PathVariable final String id) {
         if(id.length()!=3){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }

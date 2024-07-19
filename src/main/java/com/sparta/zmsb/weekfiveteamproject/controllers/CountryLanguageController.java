@@ -5,6 +5,7 @@ import com.sparta.zmsb.weekfiveteamproject.entities.CountryEntity;
 import com.sparta.zmsb.weekfiveteamproject.entities.CountrylanguageEntity;
 import com.sparta.zmsb.weekfiveteamproject.entities.CountrylanguageEntityId;
 import com.sparta.zmsb.weekfiveteamproject.service.WorldService;
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,6 +85,7 @@ public class CountryLanguageController {
 
     @PostMapping("/secure/new")
     public ResponseEntity<EntityModel<CountrylanguageEntity>> createLanguage(
+            @Parameter(name = "x-api-key", description = "header", required = true) @RequestHeader("x-api-key") String apiKey,
             @RequestBody @Valid CountrylanguageEntity newEntity, HttpServletRequest request) {
 
 
@@ -123,7 +125,9 @@ public class CountryLanguageController {
     }
 
     @DeleteMapping("/secure/delete/{countrycode}/{language}")
-    public ResponseEntity<EntityModel<CountrylanguageEntity>> deleteLanguage(@PathVariable String countrycode, @PathVariable String language) {
+    public ResponseEntity<EntityModel<CountrylanguageEntity>> deleteLanguage(
+            @Parameter(name = "x-api-key", description = "header", required = true) @RequestHeader("x-api-key") String apiKey,
+            @PathVariable String countrycode, @PathVariable String language) {
         if(countrycode.length() != 3){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }

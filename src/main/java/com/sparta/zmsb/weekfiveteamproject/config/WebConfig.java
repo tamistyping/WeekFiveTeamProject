@@ -22,6 +22,6 @@ public class WebConfig implements WebMvcConfigurer {
 
     public void addInterceptors(InterceptorRegistry registry) {
         logger.info("Adding interceptors");
-        registry.addInterceptor(apiKeyInterceptor).addPathPatterns("/api/countries/secure/**", "api/cities/secure/**","/api/languages/secure/**", "/api/keys");
+        registry.addInterceptor(apiKeyInterceptor).addPathPatterns("/api/countries/secure/**", "api/cities/secure/**","/api/languages/secure/**", "/api/keys/**");
     }
 }
