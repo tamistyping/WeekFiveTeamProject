@@ -34,7 +34,7 @@ public class CountryLanguageController {
         this.worldService = worldService;
     }
 
-    @GetMapping("/all-languages")
+    @GetMapping("/search/all-languages")
     public ResponseEntity<List<EntityModel<String>>> getAllUniqueLanguages(){
         List<EntityModel<String>> allLanguages = worldService.getAllLanguages().stream()
                 .map(language -> EntityModel.of(language, countriesLinks(language)
@@ -42,7 +42,7 @@ public class CountryLanguageController {
         return new ResponseEntity<>(allLanguages, HttpStatus.OK);
     }
 
-    @GetMapping
+    @GetMapping("/search")
     public ResponseEntity<List<EntityModel<CountrylanguageEntity>>> getAllLanguages() {
         List<CountrylanguageEntity> languages = worldService.allLanguages();
         List<EntityModel<CountrylanguageEntity>> languageModels = languages.stream()
@@ -52,7 +52,7 @@ public class CountryLanguageController {
         return ResponseEntity.ok(languageModels);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/search/{id}")
     public ResponseEntity<CollectionModel<EntityModel<CountrylanguageEntity>>> getLanguageByCountryCode(@PathVariable String id) {
         List<CountrylanguageEntity> languages = worldService.getCountryLanguagesByCountryCode(id);
 
@@ -64,7 +64,7 @@ public class CountryLanguageController {
 
         return ResponseEntity.ok(CollectionModel.of(languageModels).add(WebMvcLinkBuilder.linkTo(methodOn(CountryController.class).getCountry(id)).withRel("parent-country")));
     }
-    @GetMapping("/{id}/{language}")
+    @GetMapping("/search/{id}/{language}")
     public ResponseEntity<EntityModel<CountrylanguageEntity>> getLanguageByCountryCodeAndLanguage(@PathVariable String id, @PathVariable String language) {
 
         Optional<CountrylanguageEntity> returnLanguage = worldService.getCountryLanguagesByCountryCode(id)
@@ -82,7 +82,7 @@ public class CountryLanguageController {
         }
     }
 
-    @PostMapping("/secure")
+    @PostMapping("/secure/new")
     public ResponseEntity<EntityModel<CountrylanguageEntity>> createLanguage(
             @RequestBody @Valid CountrylanguageEntity newEntity, HttpServletRequest request) {
 
@@ -96,7 +96,7 @@ public class CountryLanguageController {
         URI location = URI.create(request.getRequestURL().toString() + "/" + newEntity.getCountryCode().getCode() + "/" + savedEntity.getId().getLanguage());
         return ResponseEntity.created(location).body(entityModel);
     }
-    @PutMapping("/secure/{countryCode}/{language}")
+    @PutMapping("/secure/update/{countryCode}/{language}")
     public ResponseEntity<EntityModel<CountrylanguageEntity>> updateLanguage(
             @PathVariable String countryCode,
             @PathVariable String language,
@@ -122,7 +122,7 @@ public class CountryLanguageController {
         }
     }
 
-    @DeleteMapping("/secure/{countrycode}/{language}")
+    @DeleteMapping("/secure/delete/{countrycode}/{language}")
     public ResponseEntity<EntityModel<CountrylanguageEntity>> deleteLanguage(@PathVariable String countrycode, @PathVariable String language) {
         if(countrycode.length() != 3){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);

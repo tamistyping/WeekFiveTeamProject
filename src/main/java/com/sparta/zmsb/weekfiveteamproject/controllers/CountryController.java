@@ -29,7 +29,7 @@ public class CountryController {
         this.worldService = worldService;
     }
 
-    @GetMapping
+    @GetMapping("/search")
     public ResponseEntity<CollectionModel<EntityModel<CountryEntity>>> getAllCountries() {
         List<EntityModel<CountryEntity>> countries = worldService.allCountries()
                 .stream().map(
@@ -38,7 +38,20 @@ public class CountryController {
         return new ResponseEntity<>(CollectionModel.of(countries,
                 WebMvcLinkBuilder.linkTo(methodOn(CountryController.class).getAllCountries()).withSelfRel()), HttpStatus.OK);
     }
-    @GetMapping("/{id}")
+    @GetMapping("/search/{columnName}/{value}")
+    public ResponseEntity<CollectionModel<EntityModel<CountryEntity>>> getCountriesByValue(@PathVariable("columnName") String columnName, @PathVariable("value") String value) {
+        List<CountryEntity> countries = worldService.getCountriesByValue(columnName, value);
+        if(countries == null) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        if(countries.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        List<EntityModel<CountryEntity>> response = countries.stream().map(this::getCountryEntityModel).toList();
+        return new ResponseEntity<>(CollectionModel.of(response, WebMvcLinkBuilder.linkTo(methodOn(CountryController.class).getCountriesByValue(columnName,value)).withSelfRel()),HttpStatus.OK );
+    }
+
+    @GetMapping("/search/code/{id}")
     public ResponseEntity<EntityModel<CountryEntity>> getCountry(@PathVariable final String id) {
         if(id.length()!=3){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -55,7 +68,7 @@ public class CountryController {
 
     }
 
-    @GetMapping("/languages/{language}")
+    @GetMapping("/search/by-language/{language}")
     public ResponseEntity<CollectionModel<EntityModel<CountryEntity>>> getCountriesByLanguage(@PathVariable final String language) {
         if(worldService.getAllLanguages().contains(language)){
             List<EntityModel<CountryEntity>> countries = worldService.getAllCountriesByLanguage(language)
@@ -67,14 +80,14 @@ public class CountryController {
         }
     }
 
-    @GetMapping("/with-no-head-of-state")
+    @GetMapping("/search/with-no-head-of-state")
     public ResponseEntity<CollectionModel<EntityModel<CountryEntity>>> getCountriesWithNoHeadOfStates() {
         List<EntityModel<CountryEntity>> countries = worldService.countriesWithNoHeadOfState().stream()
                 .map(this::getCountryEntityModel).toList();
         return new ResponseEntity<>(CollectionModel.of(countries,WebMvcLinkBuilder.linkTo(methodOn(CountryController.class).getCountriesWithNoHeadOfStates()).withSelfRel()), HttpStatus.OK);
     }
 
-    @GetMapping("/with-most-cities")
+    @GetMapping("/search/with-most-cities")
     public ResponseEntity<EntityModel<CountryEntity>> getCountryWithMostCities() {
         EntityModel<CountryEntity> country = EntityModel.of
                 (worldService.getCountry(worldService
@@ -83,7 +96,7 @@ public class CountryController {
         return new ResponseEntity<>(country.add(citiesLinks(country.getContent())), HttpStatus.OK);
     }
 
-    @PostMapping("/secure")
+    @PostMapping("/secure/new")
     public ResponseEntity<EntityModel<CountryEntity>> createCountry(@RequestBody @Valid CountryEntity country, HttpServletRequest request) {
 
         Optional<CountryEntity> checkCode = worldService.allCountries().stream().filter(c-> c.getCode().equals(country.getCode())).toList().stream().findFirst();
@@ -96,7 +109,7 @@ public class CountryController {
         return ResponseEntity.created(location).body(EntityModel.of(country).add(selfLink));
     }
 
-    @PutMapping("/secure/{id}") //No HATEOAS as no content return
+    @PutMapping("/secure/update/{id}") //No HATEOAS as no content return
     public ResponseEntity<EntityModel<CountryEntity>> updateCountry(@RequestBody @Valid CountryEntity country, @PathVariable final String id) {
 
         if(id.length()!=3){
@@ -113,7 +126,7 @@ public class CountryController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @DeleteMapping("/secure/{id}") //No HATEOAS as no content return
+    @DeleteMapping("/secure/delete/{id}") //No HATEOAS as no content return
     public ResponseEntity<CountryEntity> deleteCountry(@PathVariable final String id) {
         if(id.length()!=3){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);

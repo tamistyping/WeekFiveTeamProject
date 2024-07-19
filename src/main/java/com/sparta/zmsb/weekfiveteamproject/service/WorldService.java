@@ -321,6 +321,28 @@ public class WorldService {
         return allCountries.stream().filter(ce->ce.getCode().equals(countryCode)).findFirst().orElse(null);
     }
 
+    public List<CountryEntity> getCountriesByValue(String columnName, String value) {
+        logger.info("Entered getCountriesByValue method");
+        List<CountryEntity> allCountries = countryRepository.findAll();
+        return switch (columnName) {
+            case "name" -> allCountries.stream().filter(ce->ce.getName().toLowerCase().contains(value)).toList();
+            case "continent" -> allCountries.stream().filter(ce->ce.getContinent().toLowerCase().contains(value)).toList();
+            case "region" -> allCountries.stream().filter(ce->ce.getRegion().toLowerCase().contains(value)).toList();
+            case "surface-area"-> allCountries.stream().filter(ce -> ce.getSurfaceArea().toString().equals(value)).toList();
+            case "independence-year"-> allCountries.stream().filter(ce -> ce.getIndepYear().toString().equals(value)).toList();
+            case "population" -> allCountries.stream().filter(ce -> ce.getPopulation().toString().equals(value)).toList();
+            case "life-expectancy" -> allCountries.stream().filter(ce -> ce.getLifeExpectancy().toString().equals(value)).toList();
+            case "gnp" -> allCountries.stream().filter(ce -> ce.getGnp().toString().equals(value)).toList();
+            case "gnp-old" -> allCountries.stream().filter(ce-> ce.getGNPOld().toString().equals(value)).toList();
+            case "local-name" -> allCountries.stream().filter(ce -> ce.getLocalName().toLowerCase().contains(value)).toList();
+            case "government-form" -> allCountries.stream().filter(ce -> ce.getGovernmentForm().toLowerCase().contains(value)).toList();
+            case "head-of-state" -> allCountries.stream().filter(ce -> ce.getHeadOfState().toLowerCase().contains(value)).toList();
+            case "capital" -> allCountries.stream().filter(ce -> !cityRepository.findById(ce.getCapital()).stream().filter(city -> city.getName().contains(value)).toList().isEmpty()).toList();
+            case "code2" -> allCountries.stream().filter(ce -> ce.getCode2().toLowerCase().contains(value)).toList();
+            default -> null;
+        };
+    }
+
     // Update
     @Transactional
     public void updateCountry(CountryEntity country){

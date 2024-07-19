@@ -13,7 +13,7 @@ import java.util.logging.Logger;
 public class WebConfig implements WebMvcConfigurer {
 
     private static final Logger logger = AppLogger.getLogger();
-    private ApiKeyInterceptor apiKeyInterceptor;
+    private final ApiKeyInterceptor apiKeyInterceptor;
 
     @Autowired
     public WebConfig(ApiKeyInterceptor apiKeyInterceptor) {

@@ -31,7 +31,7 @@ public class KeyController {
         KeyEntity key = keyService.createApiKey();
         return new ResponseEntity<>(EntityModel.of(key).add(WebMvcLinkBuilder.linkTo(methodOn(KeyController.class).getAllKeys()).withRel("keys")), HttpStatus.CREATED);
     }
-    @GetMapping("/all-keys")
+    @GetMapping("/search")
     public ResponseEntity<EntityModel<List<KeyEntity>>> getAllKeys() {
         return ResponseEntity.ok(EntityModel.of(keyService.getAllKeys()).add(WebMvcLinkBuilder.linkTo(KeyController.class).withSelfRel()));
     }
