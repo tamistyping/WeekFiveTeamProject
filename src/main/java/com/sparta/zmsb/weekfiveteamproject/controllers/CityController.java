@@ -29,7 +29,7 @@ public class CityController {
         this.worldService = worldService;
     }
 
-    @PostMapping("/secure")
+    @PostMapping("/secure/new")
     public ResponseEntity<EntityModel<CityEntity>> createCity(@RequestBody @Valid CityEntity cityEntity, HttpServletRequest request) {
         List<CountryEntity> countries = worldService.allCountries();
 
@@ -55,7 +55,7 @@ public class CityController {
         return ResponseEntity.created(location).body(cityEntityModel.getFirst());
     }
 
-    @GetMapping
+    @GetMapping("/search")
     public CollectionModel<EntityModel<CityEntity>> getAllCities() {
         List<EntityModel<CityEntity>> cities = worldService.allCities().stream().map(city -> {
             List<Link> countryLinks = Stream.of(city.getCountryCode().getCode()).map(code -> WebMvcLinkBuilder.linkTo(methodOn(CountryController.class).getCountry(city.getCountryCode().getCode())).withRel(city.getCountryCode().getName())).toList();
@@ -66,7 +66,7 @@ public class CityController {
         return CollectionModel.of(cities, WebMvcLinkBuilder.linkTo(methodOn(CityController.class).getAllCities()).withSelfRel());
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/search/{id}")
     public CollectionModel<EntityModel<CityEntity>> getCity(@PathVariable @Valid Integer id) {
         List<EntityModel<CityEntity>> cityEntityModel = Stream.of(worldService.getCityById(id)).map(city -> {
             List<Link> countryLinks = Stream.of(city.getCountryCode().getCode()).map(code -> WebMvcLinkBuilder.linkTo(methodOn(CountryController.class).getCountry(city.getCountryCode().getCode())).withRel(city.getCountryCode().getName())).toList();
@@ -77,7 +77,7 @@ public class CityController {
         return CollectionModel.of(cityEntityModel, WebMvcLinkBuilder.linkTo(methodOn(CityController.class).getAllCities()).withSelfRel());
     }
 
-    @PutMapping("/secure/{id}")
+    @PutMapping("/secure/update/{id}")
     public ResponseEntity<EntityModel<CityEntity>> updateCity(@PathVariable @Valid Integer id, @RequestBody @Valid CityEntity cityEntity) {
         List<CityEntity> cities = worldService.allCities();
         List<CountryEntity> countries = worldService.allCountries();
@@ -109,7 +109,7 @@ public class CityController {
         }
     }
 
-    @DeleteMapping("/secure/{id}")
+    @DeleteMapping("/secure/delete/{id}")
     public ResponseEntity<CollectionModel<EntityModel<CityEntity>>> deleteCity(@PathVariable @Valid Integer id) {
         if (worldService.getCityById(id) == null) {
             try {
