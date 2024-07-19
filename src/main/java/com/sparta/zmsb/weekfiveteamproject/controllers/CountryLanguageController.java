@@ -5,6 +5,7 @@ import com.sparta.zmsb.weekfiveteamproject.entities.CountryEntity;
 import com.sparta.zmsb.weekfiveteamproject.entities.CountrylanguageEntity;
 import com.sparta.zmsb.weekfiveteamproject.entities.CountrylanguageEntityId;
 import com.sparta.zmsb.weekfiveteamproject.service.WorldService;
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +35,7 @@ public class CountryLanguageController {
         this.worldService = worldService;
     }
 
-    @GetMapping("/all-languages")
+    @GetMapping("/search/all-languages")
     public ResponseEntity<List<EntityModel<String>>> getAllUniqueLanguages(){
         List<EntityModel<String>> allLanguages = worldService.getAllLanguages().stream()
                 .map(language -> EntityModel.of(language, countriesLinks(language)
@@ -42,7 +43,7 @@ public class CountryLanguageController {
         return new ResponseEntity<>(allLanguages, HttpStatus.OK);
     }
 
-    @GetMapping
+    @GetMapping("/search")
     public ResponseEntity<List<EntityModel<CountrylanguageEntity>>> getAllLanguages() {
         List<CountrylanguageEntity> languages = worldService.allLanguages();
         List<EntityModel<CountrylanguageEntity>> languageModels = languages.stream()
@@ -52,7 +53,7 @@ public class CountryLanguageController {
         return ResponseEntity.ok(languageModels);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/search/{id}")
     public ResponseEntity<CollectionModel<EntityModel<CountrylanguageEntity>>> getLanguageByCountryCode(@PathVariable String id) {
         List<CountrylanguageEntity> languages = worldService.getCountryLanguagesByCountryCode(id);
 
@@ -64,7 +65,7 @@ public class CountryLanguageController {
 
         return ResponseEntity.ok(CollectionModel.of(languageModels).add(WebMvcLinkBuilder.linkTo(methodOn(CountryController.class).getCountry(id)).withRel("parent-country")));
     }
-    @GetMapping("/{id}/{language}")
+    @GetMapping("/search/{id}/{language}")
     public ResponseEntity<EntityModel<CountrylanguageEntity>> getLanguageByCountryCodeAndLanguage(@PathVariable String id, @PathVariable String language) {
 
         Optional<CountrylanguageEntity> returnLanguage = worldService.getCountryLanguagesByCountryCode(id)
@@ -82,8 +83,9 @@ public class CountryLanguageController {
         }
     }
 
-    @PostMapping("/secure")
+    @PostMapping("/secure/new")
     public ResponseEntity<EntityModel<CountrylanguageEntity>> createLanguage(
+            @Parameter(name = "x-api-key", description = "header", required = true) @RequestHeader("x-api-key") String apiKey,
             @RequestBody @Valid CountrylanguageEntity newEntity, HttpServletRequest request) {
 
 
@@ -96,20 +98,36 @@ public class CountryLanguageController {
         URI location = URI.create(request.getRequestURL().toString() + "/" + newEntity.getCountryCode().getCode() + "/" + savedEntity.getId().getLanguage());
         return ResponseEntity.created(location).body(entityModel);
     }
-    @PutMapping("/secure/{countryCode}/update/{langauge}")
+    @PutMapping("/secure/update/{countryCode}/{language}")
     public ResponseEntity<EntityModel<CountrylanguageEntity>> updateLanguage(
             @PathVariable String countryCode,
-            @PathVariable String updatedLanguage,
+            @PathVariable String language,
             @RequestBody CountrylanguageEntity newEntity
     ){
-        CountrylanguageEntityId newId = new CountrylanguageEntityId();
-        worldService.updateCountryLanguageEntity(newEntity);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-
+        boolean isLanguagePresent = false;
+        if(!countryCode.equals(newEntity.getCountryCode().getCode())){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        List<CountrylanguageEntity> languages = worldService.getCountryLanguagesByCountryCode(countryCode);
+        for(CountrylanguageEntity lang : languages){
+            if(lang.getId().getLanguage().equals(language)){
+                isLanguagePresent = true;
+                worldService.deleteCountryLanguageEntity(lang);
+            }
+        }
+        if(isLanguagePresent){
+            worldService.updateCountryLanguageEntity(newEntity);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+        else {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
 
-    @DeleteMapping("/secure/{countrycode}/{language}")
-    public ResponseEntity<EntityModel<CountrylanguageEntity>> deleteLanguage(@PathVariable String countrycode, @PathVariable String language) {
+    @DeleteMapping("/secure/delete/{countrycode}/{language}")
+    public ResponseEntity<EntityModel<CountrylanguageEntity>> deleteLanguage(
+            @Parameter(name = "x-api-key", description = "header", required = true) @RequestHeader("x-api-key") String apiKey,
+            @PathVariable String countrycode, @PathVariable String language) {
         if(countrycode.length() != 3){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
@@ -133,7 +151,6 @@ public class CountryLanguageController {
         return worldService.getAllCountriesByLanguage(language).stream().map(
                 country -> WebMvcLinkBuilder.linkTo(
                         methodOn(CountryController.class).getCountry(country.getCode())).withRel(country.getName())).toList();
-}
-    //todo get all languages independent of country links to which countries speak it?
+    }
 
 }
