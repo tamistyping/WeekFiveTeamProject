@@ -321,6 +321,7 @@ public class WorldService {
         return allCountries.stream().filter(ce->ce.getCode().equals(countryCode)).findFirst().orElse(null);
     }
 
+    @Transactional
     public List<CountryEntity> getCountriesByValue(String columnName, String value) {
         logger.info("Entered getCountriesByValue method");
         List<CountryEntity> allCountries = countryRepository.findAll();
@@ -337,10 +338,33 @@ public class WorldService {
             case "local-name" -> allCountries.stream().filter(ce -> ce.getLocalName().toLowerCase().contains(value)).toList();
             case "government-form" -> allCountries.stream().filter(ce -> ce.getGovernmentForm().toLowerCase().contains(value)).toList();
             case "head-of-state" -> allCountries.stream().filter(ce -> ce.getHeadOfState().toLowerCase().contains(value)).toList();
-            case "capital" -> allCountries.stream().filter(ce -> !cityRepository.findById(ce.getCapital()).stream().filter(city -> city.getName().contains(value)).toList().isEmpty()).toList();
+            case "capital" -> allCountries.stream().filter(ce -> findCountryCapitalName(ce.getCode()).toLowerCase().contains(value)).toList();
             case "code2" -> allCountries.stream().filter(ce -> ce.getCode2().toLowerCase().contains(value)).toList();
             default -> null;
         };
+    }
+
+    //put in partial capital name, return all countries with capital that matches partial name
+
+    @Transactional
+    public String findCountryCapitalName(String countryCode){
+        logger.info("Entered findCountryCapitalName method");
+        CountryEntity countryEntity = getCountry(countryCode);
+        List<CityEntity> cities = cityRepository.findAll();
+        if(countryEntity==null){
+            return "";
+        }
+        else if(countryEntity.getCapital() == null){
+            return "";
+        }
+        else {
+            for (CityEntity cityEntity : cities) {
+                if(cityEntity.getId().equals(countryEntity.getCapital())){
+                    return cityEntity.getName();
+                }
+            }
+        }
+        return "";
     }
 
     // Update
