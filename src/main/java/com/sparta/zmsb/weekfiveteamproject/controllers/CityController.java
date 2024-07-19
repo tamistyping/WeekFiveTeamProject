@@ -39,7 +39,7 @@ public class CityController {
     }
 
     @Operation(summary = "Post endpoint", responses = {@ApiResponse(responseCode = "200", description = "Successful post"), @ApiResponse(responseCode = "404", description = "Resource not found")})
-    @PostMapping
+    @PostMapping("/secure/new")
     public ResponseEntity<EntityModel<CityEntity>> createCity(@RequestBody @Valid CityEntity cityEntity, HttpServletRequest request) {
         List<CountryEntity> countries = worldService.allCountries();
 
@@ -62,7 +62,8 @@ public class CityController {
     }
 
     @Operation(summary = "Get endpoint", responses = {@ApiResponse(responseCode = "200", description = "Successful get")})
-    @GetMapping
+    @GetMapping("/search")
+
     public CollectionModel<EntityModel<CityEntity>> getAllCities() {
         List<EntityModel<CityEntity>> cities = worldService.allCities().stream().map(city -> {
             List<Link> countryLinks = Stream.of(city.getCountryCode().getCode()).map(code -> WebMvcLinkBuilder.linkTo(methodOn(CountryController.class).getCountry(city.getCountryCode().getCode())).withRel(city.getCountryCode().getName())).toList();
@@ -73,7 +74,7 @@ public class CityController {
         return CollectionModel.of(cities, WebMvcLinkBuilder.linkTo(methodOn(CityController.class).getAllCities()).withSelfRel());
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/search/{id}")
     public CollectionModel<EntityModel<CityEntity>> getCity(@PathVariable @Valid Integer id) {
 
         CityEntity cityEntity = worldService.getCityById(id);
@@ -90,7 +91,7 @@ public class CityController {
         return CollectionModel.of(cityEntityModel, WebMvcLinkBuilder.linkTo(methodOn(CityController.class).getAllCities()).withSelfRel());
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/secure/update/{id}")
     public ResponseEntity<EntityModel<CityEntity>> updateCity(@PathVariable @Valid Integer id, @RequestBody @Valid CityEntity cityEntity) {
 
         if (!id.equals(cityEntity.getId())) {
@@ -127,7 +128,8 @@ public class CityController {
         }
     }
 
-    @DeleteMapping("/{id}")
+
+    @DeleteMapping("/secure/delete/{id}")
     public ResponseEntity<CollectionModel<EntityModel<CityEntity>>> deleteCity(@PathVariable @Valid Integer id) {
         CityEntity city = worldService.getCityById(id);
         if (city == null) {
@@ -138,7 +140,6 @@ public class CityController {
 
         return ResponseEntity.noContent().build();
     }
-
 
     // Temporary classes - waiting for Tam (MVP+)
 
