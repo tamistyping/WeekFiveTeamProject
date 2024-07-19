@@ -46,23 +46,46 @@ In addition, you will need to research how to do the following:
 ## API functionality
 The following commands are operations you can perform with our API
 
-- /api/countries (with GET request gets all countries from world database)
-- /api/countries/{id} (with GET request and id being a 3 character country code, retrieves specific country)
-- /api/countries/languages/{language} (with GET request and id being a language, retrieves all countries that speak that language)
-- /api/countries/with-no-head-of-state (with GET request retrieves all countries that have no head of state)
-- /api/countries/with-most-cities (with GET request retrieves the country with the most cities (currently China))
-- /api/countries/secure (with POST request and countryEntity body creates a new country)
-- /api/countries/secure/{id} (with PUT request and countryEntity body updates an existing country by given three character country code, with DELETE request deletes given country by given country code)
-- /api/cities (with GET request gets all cities from world database)
-- /api/cities/{id} (with GET request gets city matching given id, city id is between 1 and 4 digits)
-- /api/cities/secure (with POST request and CityEntity body creates a new city)
-- /api/cities/secure/{id} (with PUT request and cityEntity body updates an existing country by given 1-4 digit id, with DELETE request deletes given city by given id)
-- /api/languages (with GET request retrieves all languages spoken by each country)
-- /api/languages/all-languages (with GET request lists all unique languages in the world database)
-- /api/languages/{id} (with GET request and id being a 3 character country code, retrieves specific country and its languages)
-- /api/languages/{id}/{language} (with GET request and id being a 3 character country code, and language being a language, retrieves the language)
-- /api/languages/secure (with POST request and countryLanguageEntity body creates a new language)
-- /api/languages/secure/{id}/{language} (with PUT request and id being a 3 character country code, and language being a language, updates the language, with DELETE request deletes the language)
+- /api/countries/search (with GET request gets all countries from world database)
+- /api/countries/search/{id} (with GET request and id being a 3 character country code, retrieves specific country)
+- /api/countries/search/{columnname}/{value} (with GET request and columnname being a column in the database, and value being anything to search for retrieves countries that match)
+- /api/countries/search/by-language/{language} (with GET request and id being a language, retrieves all countries that speak that language)
+- /api/countries/search/with-no-head-of-state (with GET request retrieves all countries that have no head of state)
+- /api/countries/search/with-most-cities (with GET request retrieves the country with the most cities (currently China))
+- /api/countries/secure/new (with POST request and countryEntity body creates a new country)
+- /api/countries/secure/update/{id} (with PUT request and countryEntity body updates an existing country by given three character country code)
+- /api/countries/secure/delete/{id} (with DELETE request deletes given country by given country code)
+- /api/cities/search (with GET request gets all cities from world database)
+- /api/cities/search/{id} (with GET request gets city matching given id, city id is between 1 and 4 digits)
+- /api/cities/secure/new (with POST request and CityEntity body creates a new city)
+- /api/cities/secure/update/{id} (with PUT request and cityEntity body updates an existing country by given 1-4 digit id, with DELETE request deletes given city by given id)
+- /api/cities/secure/delete/{id} (with DELETE request deletes given city by given id)
+- /api/languages/search (with GET request retrieves all languages spoken by each country)
+- /api/languages/search/all-languages (with GET request lists all unique languages in the world database)
+- /api/languages/search/{id} (with GET request and id being a 3 character country code, retrieves specific country and its languages)
+- /api/languages/search/{id}/{language} (with GET request and id being a 3 character country code, and language being a language, retrieves the language)
+- /api/languages/secure/new (with POST request and countryLanguageEntity body creates a new language)
+- /api/languages/secure/update/{id}/{language} (with PUT request and id being a 3 character country code, and language being a language, updates the language)
+- /api/languages/secure/update/{id}/{language} (with DELETE request deletes the language)
+
+# Column names for country value search
+
+- name
+- continent
+- region
+- surface-area
+- independence-year
+- population
+- life-expectancy
+- gnp
+- gnp-old
+- local-name
+- government-form
+- head-of-state
+- capital
+- code2
+
+please note values searched for in this method for all alphabetical returns only have to be a partial match, anything numeric such as surface area or population will only return an exact match.
 
 # example bodies
 
@@ -137,6 +160,6 @@ The following commands are operations you can perform with our API
 }
 
 # API Key
-in order to create, update or delete any entity from the database, key validation is required.
+in order to create, update or delete any entity from the database, key validation is required. Keys can be generated on api/keys/generate. Note this is a secure endpoint and will need an initial key set up in order to generate more.
 
 
