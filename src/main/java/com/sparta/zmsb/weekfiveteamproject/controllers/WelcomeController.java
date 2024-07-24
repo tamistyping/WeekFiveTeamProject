@@ -55,7 +55,7 @@ public class WelcomeController {
         }
 
         if(userDetailsService.validateUserPassword(user.getUsername(), user.getPassword())){
-            return "redirect:/"; //change to logged in landing page
+            return "auth/home"; //change to logged in landing page
         }
 
         model.addAttribute("passwordError", "Password does not match.");
@@ -99,9 +99,14 @@ public class WelcomeController {
         }
 
         userEntity.setPassword(passwordEncoder.encode(userEntity.getPassword()));
-        userEntity.setRoles("USER");
+        userEntity.setRoles("ROLE_USER");
         userRepository.save(userEntity);
         return "redirect:/index"; //change to logged in landing page
 
+    }
+
+    @GetMapping("/auth/home")
+    public String homePage(Model model) {
+        return "auth/home";
     }
 }
