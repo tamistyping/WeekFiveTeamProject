@@ -12,6 +12,7 @@ import org.springframework.hateoas.Link;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -148,7 +149,7 @@ public class CountryController {
         return worldService.allCities().stream().filter(cities -> cities.getCountryCode().getCode().equals(country.getCode())).toList()
                 .stream().map(
                         city -> WebMvcLinkBuilder.linkTo(
-                                methodOn(CityController.class).getCity(city.getId())).withRel(city.getName())).toList();
+                                methodOn(CityController.class).getCity(city.getId(), null)).withRel(city.getName())).toList();
     }
     private List<Link> languagesLinks(CountryEntity country){
         return worldService.allLanguages().stream().filter(lang -> lang.getCountryCode().getCode().equals(country.getCode())).toList()
