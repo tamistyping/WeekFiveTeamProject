@@ -42,14 +42,23 @@ public class WelcomeController {
     }
 
     @PostMapping("/login")
-    public String login(@Valid @ModelAttribute("user") final UserEntity user, Errors errors, Model model) {
+    public String login(@Valid @ModelAttribute("user") UserEntity user, Errors errors, Model model) {
+
         if (errors.hasErrors()) {
             return "login";
         }
-        if(userDetailsService.validateUser(user.getUsername(), user.getPassword())) {
+
+        if(userDetailsService.validateUser(user.getUsername())){
+            model.addAttribute("userError", "Username does not exist");
+            model.addAttribute("registerRedirect");
+            return "login";
+        }
+
+        if(userDetailsService.validateUserPassword(user.getUsername(), user.getPassword())){
             return "redirect:/"; //change to logged in landing page
         }
-        model.addAttribute("error", "Invalid username or password");
+
+        model.addAttribute("passwordError", "Password does not match.");
         return "login";
     }
 

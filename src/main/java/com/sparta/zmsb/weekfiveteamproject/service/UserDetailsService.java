@@ -29,7 +29,11 @@ public class UserDetailsService implements org.springframework.security.core.use
         ).orElseThrow(() -> new UsernameNotFoundException("User not found:" + username));
     }
 
-    public boolean validateUser(String username, String password) {
+    public boolean validateUser(String username){
+        return userRepository.findByUsername(username).isEmpty();
+    }
+
+    public boolean validateUserPassword(String username, String password) {
         UserEntity user = userRepository.findByUsername(username).orElseThrow(null);
         return user != null && passwordEncoder.matches(password, user.getPassword());
     }
