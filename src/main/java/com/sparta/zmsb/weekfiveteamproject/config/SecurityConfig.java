@@ -5,6 +5,7 @@ import com.sparta.zmsb.weekfiveteamproject.service.UserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -27,7 +28,7 @@ public class SecurityConfig {
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http.authorizeHttpRequests(authorize -> authorize
                 .requestMatchers("/", "/index","/login","/register").permitAll()
-                .requestMatchers("/auth/**").hasRole("USER").anyRequest().authenticated())
+                .requestMatchers("/auth/**").hasRole("USER"))
                 .userDetailsService(userDetailsService).build();
     }
 

@@ -2,20 +2,27 @@ package com.sparta.zmsb.weekfiveteamproject.controllers;
 
 import com.sparta.zmsb.weekfiveteamproject.entities.UserEntity;
 import com.sparta.zmsb.weekfiveteamproject.repositories.UserRepository;
+import com.sparta.zmsb.weekfiveteamproject.service.UserDetailsService;
+import jakarta.validation.Valid;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 public class WelcomeController {
 
     private final UserRepository userRepository;
+    private final UserDetailsService userDetailsService;
+    private final PasswordEncoder passwordEncoder;
 
-    public WelcomeController(final UserRepository userRepository) {
+    public WelcomeController(final UserRepository userRepository, UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.userDetailsService = userDetailsService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @GetMapping("/")
@@ -29,20 +36,63 @@ public class WelcomeController {
     }
 
     @GetMapping("/login")
-    public String login() {
+    public String login(Model model) {
+        model.addAttribute("user", new UserEntity());
+        return "login";
+    }
+
+    @PostMapping("/login")
+    public String login(@Valid @ModelAttribute("user") final UserEntity user, Errors errors, Model model) {
+        if (errors.hasErrors()) {
+            return "login";
+        }
+        if(userDetailsService.validateUser(user.getUsername(), user.getPassword())) {
+            return "redirect:/"; //change to logged in landing page
+        }
+        model.addAttribute("error", "Invalid username or password");
         return "login";
     }
 
     @GetMapping("/register")
-    public String register() {
+    public String register(Model model) {
+        model.addAttribute("user", new UserEntity());
         return "register";
     }
     @PostMapping("/register")
-    public String register(@ModelAttribute UserEntity user, Errors errors) {
+    public String register(@Valid @ModelAttribute("user") UserEntity userEntity, Errors errors, Model model) {
+
+        if(userDetailsService.validateNewUsername(userEntity)) {
+            model.addAttribute("nameerror", "Username is already in use.");
+            if(userDetailsService.validateNewEmail(userEntity)){
+                model.addAttribute("emailerror", "Email is already in use.");
+            }
+            if(userDetailsService.validateNewPassword(userEntity.getPassword())){
+                model.addAttribute("passworderror", "Password must be 8 characters or longer.");
+            }
+            return "register";
+        }
+
+        if(userDetailsService.validateNewEmail(userEntity)){
+            model.addAttribute("emailerror", "Email is already in use.");
+            if(userDetailsService.validateNewPassword(userEntity.getPassword())) {
+                model.addAttribute("passworderror", "Password must be 8 characters or longer.");
+                return "register";
+            }
+        }
+
+        if(userDetailsService.validateNewPassword(userEntity.getPassword())){
+            model.addAttribute("passworderror", "Password must be 8 characters or longer.");
+            return "register";
+        }
+
         if(errors.hasErrors()) {
             return "register";
         }
-        userRepository.save(user);
-        return "index"; //change to logged in landing page
+
+        userEntity.setPassword(passwordEncoder.encode(userEntity.getPassword()));
+        userEntity.setRoles("USER");
+        userRepository.save(userEntity);
+        return "redirect:/index"; //change to logged in landing page
+
     }
 }
