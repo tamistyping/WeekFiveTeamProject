@@ -59,4 +59,10 @@ public class MpoUserDetailsService implements org.springframework.security.core.
     public boolean validateNewPassword(String password) {
         return password.length() <= 8;
     }
+
+    public void grantAdmin(UserEntity user, String role) {
+        UserEntity userEntity = userRepository.findById(user.getId()).orElseThrow(()->new UsernameNotFoundException("User not found"));
+        userEntity.setRoles("ROLE_" + role);
+        userRepository.save(userEntity);
+    }
 }
