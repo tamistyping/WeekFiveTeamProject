@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Country</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container mt-5">
+    <h1>Create a Country</h1>
+
+    <section>
+        <form th:action="@{/countries/new}" method="post" th:object="${country}">
+            <fieldset>
+                <legend>Country Information</legend>
+                <div class="form-group">
+                    <label for="code">Code</label>
+                    <input type="text" th:field="*{code}" id="code" class="form-control" required>
+                    <span th:if="${#fields.hasErrors('code')}" th:errors="*{code}" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label for="name">Name</label>
+                    <input type="text" th:field="*{name}" id="name" class="form-control" required>
+                    <span th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label for="continent">Continent</label>
+                    <input type="text" th:field="*{continent}" id="continent" class="form-control" required>
+                    <span th:if="${#fields.hasErrors('continent')}" th:errors="*{continent}" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label for="region">Region</label>
+                    <input type="text" th:field="*{region}" id="region" class="form-control" required>
+                    <span th:if="${#fields.hasErrors('region')}" th:errors="*{region}" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label for="surfaceArea">Surface Area</label>
+                    <input type="number" step="0.01" th:field="*{surfaceArea}" id="surfaceArea" class="form-control" required>
+                    <span th:if="${#fields.hasErrors('surfaceArea')}" th:errors="*{surfaceArea}" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label for="indepYear">Independence Year</label>
+                    <input type="number" th:field="*{indepYear}" id="indepYear" class="form-control">
+                    <span th:if="${#fields.hasErrors('indepYear')}" th:errors="*{indepYear}" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label for="population">Population</label>
+                    <input type="number" th:field="*{population}" id="population" class="form-control" required>
+                    <span th:if="${#fields.hasErrors('population')}" th:errors="*{population}" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label for="lifeExpectancy">Life Expectancy</label>
+                    <input type="number" step="0.1" th:field="*{lifeExpectancy}" id="lifeExpectancy" class="form-control">
+                    <span th:if="${#fields.hasErrors('lifeExpectancy')}" th:errors="*{lifeExpectancy}" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label for="localName">Local Name</label>
+                    <input type="text" th:field="*{localName}" id="localName" class="form-control" required>
+                    <span th:if="${#fields.hasErrors('localName')}" th:errors="*{localName}" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label for="governmentForm">Government Form</label>
+                    <input type="text" th:field="*{governmentForm}" id="governmentForm" class="form-control" required>
+                    <span th:if="${#fields.hasErrors('governmentForm')}" th:errors="*{governmentForm}" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label for="headOfState">Head of State</label>
+                    <input type="text" th:field="*{headOfState}" id="headOfState" class="form-control">
+                    <span th:if="${#fields.hasErrors('headOfState')}" th:errors="*{headOfState}" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label for="capital">Capital</label>
+                    <input type="number" th:field="*{capital}" id="capital" class="form-control">
+                    <span th:if="${#fields.hasErrors('capital')}" th:errors="*{capital}" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label for="code2">Code2</label>
+                    <input type="text" th:field="*{code2}" id="code2" class="form-control" required>
+                    <span th:if="${#fields.hasErrors('code2')}" th:errors="*{code2}" class="text-danger"></span>
+                </div>
+                <p>
+                    <button type="submit" class="btn btn-primary">Create</button>
+                </p>
+            </fieldset>
+        </form>
+        <a href="/countries" class="btn btn-secondary">Back to List</a>
+    </section>
+</div>
+</body>
+</html>

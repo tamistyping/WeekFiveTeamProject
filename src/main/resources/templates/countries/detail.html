@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Country Details</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container mt-5">
+    <h1 class="mb-4">Country Details</h1>
+
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title" th:text="${country.name}">Country Name</h3>
+        </div>
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-3">Code</dt>
+                <dd class="col-sm-9" th:text="${country.code}">Country Code</dd>
+
+                <dt class="col-sm-3">Continent</dt>
+                <dd class="col-sm-9" th:text="${country.continent}">Continent</dd>
+
+                <dt class="col-sm-3">Region</dt>
+                <dd class="col-sm-9" th:text="${country.region}">Region</dd>
+
+                <dt class="col-sm-3">Surface Area</dt>
+                <dd class="col-sm-9" th:text="${country.surfaceArea}">Surface Area</dd>
+
+                <dt class="col-sm-3">Independence Year</dt>
+                <dd class="col-sm-9" th:text="${country.indepYear}">Independence Year</dd>
+
+                <dt class="col-sm-3">Population</dt>
+                <dd class="col-sm-9" th:text="${country.population}">Population</dd>
+
+                <dt class="col-sm-3">Life Expectancy</dt>
+                <dd class="col-sm-9" th:text="${country.lifeExpectancy}">Life Expectancy</dd>
+
+                <dt class="col-sm-3">Local Name</dt>
+                <dd class="col-sm-9" th:text="${country.localName}">Local Name</dd>
+
+                <dt class="col-sm-3">Government Form</dt>
+                <dd class="col-sm-9" th:text="${country.governmentForm}">Government Form</dd>
+
+                <dt class="col-sm-3">Head of State</dt>
+                <dd class="col-sm-9" th:text="${country.headOfState}">Head of State</dd>
+
+                <dt class="col-sm-3">Capital</dt>
+                <dd class="col-sm-9" th:text="${country.capital}">Capital</dd>
+            </dl>
+        </div>
+        <div class="card-footer">
+            <a href="/countries" class="btn btn-primary">Back to List</a>
+            <form th:action="@{/countries/delete/{id}(id=${country.code})}" method="post" style="display:inline;">
+                <input type="hidden" name="_method" value="delete"/>
+                <button type="submit" class="btn btn-danger">Delete</button>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>
