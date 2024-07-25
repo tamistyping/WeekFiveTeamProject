@@ -17,7 +17,7 @@
 <div class="container mt-5">
     <h1 class="mb-4">List of Countries</h1>
 
-    <form th:action="@{/countries/search}" method="get" class="mb-4">
+    <form th:action="@{/auth/countries/search}" method="get" class="mb-4">
         <div class="form-row">
             <div class="form-group col-md-6">
                 <label for="searchId">Search Country by ID</label>
@@ -52,7 +52,7 @@
             <tbody>
             <tr th:each="country : ${countries}">
                 <td th:text="${country.code}">Code></td>
-                <td><a th:href="@{/countries/details/{id}(id=${country.code})}" th:text="${country.name}">Name</a></td>
+                <td><a th:href="@{/auth/countries/details/{id}(id=${country.code})}" th:text="${country.name}">Name</a></td>
                 <td th:text="${country.continent}">Continent</td>
                 <td th:text="${country.region}">Region</td>
                 <td th:text="${country.surfaceArea}">Surface Area</td>

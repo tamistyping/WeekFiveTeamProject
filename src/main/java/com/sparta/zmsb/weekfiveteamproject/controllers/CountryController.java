@@ -19,7 +19,7 @@ import java.util.Optional;
 
 
 @Controller
-@RequestMapping("/countries")
+@RequestMapping("auth/countries")
 public class CountryController {
 
     private final WorldService worldService;
@@ -32,60 +32,60 @@ public class CountryController {
     public String getAllCountries(Model model) {
         List<CountryEntity> countries = worldService.allCountries();
         model.addAttribute("countries", countries);
-        return "countries/list";
+        return "auth/countries/list";
     }
 
     @GetMapping("/details/{id}")
     public String viewCountryDetails(@PathVariable String id, Model model) {
         if (id.length() != 3) {
-            return "redirect:/countries?error=invalid_id";
+            return "redirect:auth/countries?error=invalid_id";
         }
 
         CountryEntity country = worldService.getCountry(id);
 
         if (country == null) {
-            return "redirect:/countries?error=not_found";
+            return "redirect:auth/countries?error=not_found";
         }
 
         model.addAttribute("country", country);
-        return "countries/detail";
+        return "auth/countries/detail";
     }
 
     @GetMapping("/search")
     public String searchCountryById(@RequestParam("id") String id, Model model) {
         if (id.length() != 3) {
             model.addAttribute("error", "Invalid country ID. It should be 3 characters long.");
-            return "countries/list";
+            return "auth/countries/list";
         }
 
         CountryEntity country = worldService.getCountry(id);
 
         if (country == null) {
             model.addAttribute("error", "Country not found.");
-            return "countries/list";
+            return "auth/countries/list";
         }
 
         model.addAttribute("countries", List.of(country));
-        return "countries/list";
+        return "auth/countries/list";
     }
 
     @GetMapping("/new")
     public String createCountryForm(Model model) {
         model.addAttribute("country", new CountryEntity());
-        return "countries/new";
+        return "auth/countries/new";
     }
 
     @PostMapping("/new")
     public String createCountry(@Valid @ModelAttribute("country") CountryEntity country, Errors errors) {
         if (errors.hasErrors()) {
-            return "countries/new";
+            return "auth/countries/new";
         }
 
         try {
             worldService.createNewCountry(country);
         } catch (Exception e) {
             e.printStackTrace();
-            return "redirect:/countries/new?error=true";
+            return "redirect:auth/countries/new?error=true";
         }
 
         return "redirect:/countries";
@@ -94,13 +94,13 @@ public class CountryController {
     @GetMapping("/edit/{id}")
     public String editCountryForm(@PathVariable String id, Model model) {
         if (id.length() != 3) {
-            return "redirect:/countries?error=invalid_id";
+            return "redirect:auth/countries?error=invalid_id";
         }
 
         CountryEntity country = worldService.getCountry(id);
 
         if (country == null) {
-            return "redirect:/countries?error=not_found";
+            return "redirect:auth/countries?error=not_found";
         }
 
         model.addAttribute("country", country);
