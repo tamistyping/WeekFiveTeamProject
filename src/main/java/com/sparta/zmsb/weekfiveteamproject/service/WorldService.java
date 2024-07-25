@@ -383,7 +383,12 @@ public class WorldService {
         Set<String> uniqueLanguages = new HashSet<>();
         List<CountrylanguageEntity> languages = countryLanguageRepository.findAll();
         for(CountrylanguageEntity language : languages){
-            uniqueLanguages.add(language.getId().getLanguage());
+            if(language.getId().getLanguage().matches("[a-zA-Z]+")) {
+                uniqueLanguages.add(language.getId().getLanguage());
+            }
+            else {
+                uniqueLanguages.add(language.getId().getLanguage().replaceAll("[\\[\\]]+", ""));
+            }
         }
         return uniqueLanguages.stream().sorted().toList();
         //might need to change this needs testing
