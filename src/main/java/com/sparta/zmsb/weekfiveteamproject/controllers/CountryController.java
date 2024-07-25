@@ -3,8 +3,11 @@ package com.sparta.zmsb.weekfiveteamproject.controllers;
 import com.sparta.zmsb.weekfiveteamproject.entities.CountryEntity;
 import com.sparta.zmsb.weekfiveteamproject.service.WorldService;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -32,8 +35,8 @@ public class CountryController {
         return "countries/list";
     }
 
-    @GetMapping("/{id}")
-    public String getCountry(@PathVariable String id, Model model) {
+    @GetMapping("/details/{id}")
+    public String viewCountryDetails(@PathVariable String id, Model model) {
         if (id.length() != 3) {
             return "redirect:/countries?error=invalid_id";
         }
@@ -45,7 +48,25 @@ public class CountryController {
         }
 
         model.addAttribute("country", country);
-        return "countries/details";
+        return "countries/detail";
+    }
+
+    @GetMapping("/search")
+    public String searchCountryById(@RequestParam("id") String id, Model model) {
+        if (id.length() != 3) {
+            model.addAttribute("error", "Invalid country ID. It should be 3 characters long.");
+            return "countries/list";
+        }
+
+        CountryEntity country = worldService.getCountry(id);
+
+        if (country == null) {
+            model.addAttribute("error", "Country not found.");
+            return "countries/list";
+        }
+
+        model.addAttribute("countries", List.of(country));
+        return "countries/list";
     }
 
     @GetMapping("/new")
@@ -55,19 +76,18 @@ public class CountryController {
     }
 
     @PostMapping("/new")
-    public String createCountry(@ModelAttribute @Valid CountryEntity country, RedirectAttributes redirectAttributes) {
-        Optional<CountryEntity> existingCountry = worldService.allCountries()
-                .stream()
-                .filter(c -> c.getCode().equals(country.getCode()))
-                .findFirst();
-
-        if (existingCountry.isPresent()) {
-            redirectAttributes.addFlashAttribute("error", "Country code already exists");
-            return "redirect:/countries/new";
+    public String createCountry(@Valid @ModelAttribute("country") CountryEntity country, Errors errors) {
+        if (errors.hasErrors()) {
+            return "countries/new";
         }
 
-        worldService.createNewCountry(country);
-        redirectAttributes.addFlashAttribute("success", "Country created successfully");
+        try {
+            worldService.createNewCountry(country);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "redirect:/countries/new?error=true";
+        }
+
         return "redirect:/countries";
     }
 
