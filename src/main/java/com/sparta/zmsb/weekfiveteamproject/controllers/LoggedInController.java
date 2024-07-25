@@ -10,7 +10,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -46,7 +45,7 @@ public class LoggedInController {
     public String grantAdmin(Model model, @RequestParam Long userId, @RequestParam String role) {
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-        mpoUserDetailsService.grantAdmin(user, role);
+        mpoUserDetailsService.changeRole(user, role);
         return "redirect:/auth/secure/manage-users";
     }
     @PostMapping("auth/secure/delete-user")

@@ -43,9 +43,9 @@ public class PercentageOfPopulationTests {
         Assertions.assertEquals(expected,actual);
     }
     @Test
-    @DisplayName("When creating country repository list size should be 239")
+    @DisplayName("When creating country repository list size should be 241")
     void whenCreatingCountryRepositoryListSizeShouldBe239() {
-        int expected = 239;
+        int expected = 241;
         List<CountryEntity> countryRepoList = worldService.allCountries();
         int actual = countryRepoList.size();
         Assertions.assertEquals(expected,actual);
