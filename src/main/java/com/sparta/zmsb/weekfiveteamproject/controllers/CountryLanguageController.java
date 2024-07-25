@@ -1,31 +1,25 @@
 package com.sparta.zmsb.weekfiveteamproject.controllers;
 
 
+import com.sparta.zmsb.weekfiveteamproject.entities.CityEntity;
 import com.sparta.zmsb.weekfiveteamproject.entities.CountryEntity;
 import com.sparta.zmsb.weekfiveteamproject.entities.CountrylanguageEntity;
 import com.sparta.zmsb.weekfiveteamproject.entities.CountrylanguageEntityId;
+import com.sparta.zmsb.weekfiveteamproject.exceptions.ResourceNotFoundException;
 import com.sparta.zmsb.weekfiveteamproject.service.WorldService;
-import io.swagger.v3.oas.annotations.Parameter;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.hateoas.CollectionModel;
-import org.springframework.hateoas.EntityModel;
-import org.springframework.hateoas.Link;
-import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.net.URI;
+import java.math.BigDecimal;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Controller
 @RequestMapping("/api/languages")
@@ -58,11 +52,42 @@ public class CountryLanguageController {
 //    }
 
 
-    @GetMapping("/search")
-    public String getAllLanguages(Model model) {
+    @GetMapping
+    public String getLanguages(Model model) {
         List<CountrylanguageEntity> languages = worldService.allLanguages();
         model.addAttribute("languages", languages);
-        return "country_language_templates/all_languages";
+        model.addAttribute("searchPage", false);
+        return "country_language_templates/languages";
+    }
+
+    @GetMapping("/search")
+    public String searchLanguages(@RequestParam("languageName") String languageString, RedirectAttributes redirectAttributes) {
+        List<CountrylanguageEntity> languages = worldService.allLanguages();
+        for (CountrylanguageEntity language : languages) {
+            if (language.getId().getLanguage().equalsIgnoreCase(languageString)) {
+                redirectAttributes.addAttribute("id", language.getId());
+                return "redirect:/api/cities/search/{countryCode}/{language}";
+            }
+        }
+        return "redirect:/api/languages";
+    }
+
+    @GetMapping("/search/{countryCode}/{language}")
+    public String searchLanguage(@PathVariable String countryCode, @PathVariable String language, Model model) {
+        CountrylanguageEntityId countrylanguageEntityId = new CountrylanguageEntityId();
+        countrylanguageEntityId.setCountryCode(countryCode);
+        countrylanguageEntityId.setLanguage(language);
+
+        List<CountrylanguageEntity> languages = worldService.allLanguages().stream().filter(l -> l.getId().getCountryCode().equals(countryCode) && l.getId().getLanguage().equals(language)).toList();
+
+        if (languages.isEmpty()) {
+            throw new ResourceNotFoundException("Language with country code: " + countryCode + " and language: " + language + " not found");
+        }
+
+        model.addAttribute("languages", languages);
+        model.addAttribute("searchPage", true);
+
+        return "country_language_templates/languages";
     }
 
 //    @GetMapping("/search/{id}")
@@ -78,16 +103,7 @@ public class CountryLanguageController {
 //        return ResponseEntity.ok(CollectionModel.of(languageModels).add(WebMvcLinkBuilder.linkTo(methodOn(CountryController.class).getCountry(id)).withRel("parent-country")));
 //    }
 
-    @GetMapping("/search/{id}")
-    public String getLanguageByCountryCode(@PathVariable String id, Model model) {
-        CountryEntity country = worldService.getCountry(id);
-        List<CountrylanguageEntity> languages = worldService.getCountryLanguagesByCountryCode(id);
 
-        model.addAttribute("country", country);
-        model.addAttribute("languages", languages);
-
-        return "country_language_templates/country_languages";
-    }
 
 //    @GetMapping("/search/{id}/{language}")
 //    public ResponseEntity<EntityModel<CountrylanguageEntity>> getLanguageByCountryCodeAndLanguage(@PathVariable String id, @PathVariable String language) {
@@ -107,24 +123,6 @@ public class CountryLanguageController {
 //        }
 //    }
 
-    @GetMapping("/search/{id}/{language}")
-    public String getLanguageByCountryCodeAndLanguage(@PathVariable String id, @PathVariable String language, Model model) {
-
-        Optional<CountrylanguageEntity> returnLanguage = worldService.getCountryLanguagesByCountryCode(id)
-                .stream().filter(cLE -> cLE.getId().getLanguage()
-                        .equals(language)).toList().stream().findFirst();
-
-        if (returnLanguage.isEmpty()){
-            model.addAttribute("error", HttpStatus.NOT_FOUND);
-            return "country_language_templates/country_Languages";
-        }
-        else {
-            model.addAttribute("country", worldService.getCountry(id));
-            model.addAttribute("language", returnLanguage.get());
-            return "country_language_templates/country_languages";
-        }
-    }
-
 //    @PostMapping("/secure/new")
 //    public ResponseEntity<EntityModel<CountrylanguageEntity>> createLanguage(
 //            @Parameter(name = "x-api-key", description = "header", required = true) @RequestHeader("x-api-key") String apiKey,
@@ -141,19 +139,35 @@ public class CountryLanguageController {
 //        return ResponseEntity.created(location).body(entityModel);
 //    }
 
-    @GetMapping("/new")
+    @GetMapping("/create")
     public String createLanguage(Model model) {
         model.addAttribute("language", new CountrylanguageEntity());
+        model.addAttribute("create", true);
+        model.addAttribute("update", false);
         return "country_language_templates/create_language";
     }
 
-    @PostMapping("/new")
-    public String createLanguagePost(@Valid @ModelAttribute("language") CountrylanguageEntity languageEntity, Errors errors) {
-        if (errors.hasErrors()) {
-            return "country_language_templates/create_language";
+    @PostMapping("/create")
+    public String createLanguagePost(@RequestParam String countryCode, @RequestParam String language,
+                                     @RequestParam String isOfficial, @RequestParam BigDecimal percentage) {
+        CountryEntity country = worldService.getCountry(countryCode);
+        if (country == null) {
+            throw new ResourceNotFoundException("Language with country code: " + countryCode + " and language: " + language + " not found");
         }
-        worldService.saveCountryLanguage(languageEntity);
-        return "country_language_templates/create_language";
+
+        CountrylanguageEntity countrylanguageEntity = new CountrylanguageEntity();
+
+        CountrylanguageEntityId countrylanguageEntityId = new CountrylanguageEntityId();
+        countrylanguageEntityId.setLanguage(language);
+        countrylanguageEntityId.setCountryCode(countryCode);
+
+        countrylanguageEntity.setId(countrylanguageEntityId);
+        countrylanguageEntity.setIsOfficial(isOfficial);
+        countrylanguageEntity.setPercentage(percentage);
+
+        worldService.createCountryLanguageEntityEntry(countrylanguageEntity);
+
+        return "redirect:/api/languages/create?";
     }
 
 //    @PutMapping("/secure/update/{countryCode}/{language}")
@@ -211,35 +225,60 @@ public class CountryLanguageController {
 //                        methodOn(CountryController.class).getCountry(country.getCode())).withRel(country.getName())).toList();
 //    }
 
-    @GetMapping("/delete")
-    public String deleteLanguagePage() {
-        return "country_language_templates/delete_language";
+
+
+//    @GetMapping("/update/{id}")
+//    public String updateCity(@PathVariable Integer id, Model model) {
+//        CityEntity city = worldService.getCityById(id);
+//        model.addAttribute("city", city);
+//        model.addAttribute("update", true);
+//        model.addAttribute("create", false);
+//        model.addAttribute("smallestDistricts", null);
+//        return "city_templates/create_city";
+//    }
+//
+//    @PostMapping("/update/{id}")
+//    public String updateCityPost(@PathVariable Integer id, @RequestParam String name, @RequestParam String countryCode,
+//                                 @RequestParam String district, @RequestParam Integer population) {
+//
+//        CountryEntity country = worldService.getCountry(countryCode);
+//        if (country == null) {
+//            throw new ResourceNotFoundException("Country with code: " + countryCode + " does not exist");
+//        }
+//
+//        CityEntity city = new CityEntity();
+//        city.setId(id);
+//        city.setName(name);
+//        city.setCountryCode(worldService.getCountry(countryCode));
+//        city.setDistrict(district);
+//        city.setPopulation(population);
+//
+//        worldService.updateCity(city);
+//        return "redirect:/api/cities/update/" + id;
+//    }
+
+    @GetMapping("/update/{countryCode}/{language}")
+    public String updateLanguage(@PathVariable String countryCode, @PathVariable String language, Model model) {
+        List<CountrylanguageEntity> languages = worldService.allLanguages().stream().filter(l -> l.getId().getCountryCode().equals(countryCode) && l.getId().getLanguage().equals(language)).toList();
+        model.addAttribute("language", languages.getFirst());
+        model.addAttribute("update", true);
+        model.addAttribute("create", false);
+        return "country_language_templates/create_language";
     }
 
-    @GetMapping("/delete/{countrycode}/{language}")
+//    @PostMapping("/update/{countryCode}/{language}")
+//    public String updateLanguagePost(@RequestParam)
+
+    @GetMapping("/delete/{countryCode}/{language}")
     public String deleteLanguage(@PathVariable String countryCode, @PathVariable String language) {
-        List<CountrylanguageEntity> languages = worldService.getCountryLanguagesByCountryCode(countryCode);
-        for(CountrylanguageEntity languageEntity : languages){
-            if(languageEntity.getId().getLanguage().equals(language)){
-                worldService.deleteCountryLanguageEntity(languageEntity);
-            }
+        List<CountrylanguageEntity> languages = worldService.allLanguages().stream().filter(l -> l.getId().getCountryCode().equals(countryCode) && l.getId().getLanguage().equals(language)).toList();
+        if (languages.isEmpty()) {
+            throw new ResourceNotFoundException("Language with country code: " + countryCode + " and language: " + language + " not found");
         }
+
+        worldService.deleteCountryLanguageEntity(languages.getFirst());
         return "country_language_templates/delete_language";
     }
 
-    @DeleteMapping("/delete/{countrycode}/{language}")
-    public String deleteLanguageDelete(@PathVariable String countrycode, @PathVariable String language, Errors errors) {
-        if (errors.hasErrors()) {
-            return "country_language_templates/delete_language";
-        }
 
-        List<CountrylanguageEntity> countrylanguageEntities = worldService.getCountryLanguagesByCountryCode(countrycode);
-
-        for(CountrylanguageEntity countrylanguageEntity : countrylanguageEntities){
-            if(countrylanguageEntity.getId().getLanguage().equals(language)){
-                worldService.deleteCountryLanguageEntity(countrylanguageEntity);
-            }
-        }
-        return "country_language_templates/delete_language";
-    }
 }
