@@ -85,22 +85,22 @@ public class CountryController {
             worldService.createNewCountry(country);
         } catch (Exception e) {
             e.printStackTrace();
-            return "redirect:auth/countries/new?error=true";
+            return "redirect:/auth/countries/new?error=true";
         }
 
-        return "redirect:/countries";
+        return "redirect:/auth/countries";
     }
 
     @GetMapping("/edit/{id}")
     public String editCountryForm(@PathVariable String id, Model model) {
         if (id.length() != 3) {
-            return "redirect:auth/countries?error=invalid_id";
+            return "redirect:/auth/countries?error=invalid_id";
         }
 
         CountryEntity country = worldService.getCountry(id);
 
         if (country == null) {
-            return "redirect:auth/countries?error=not_found";
+            return "redirect:/auth/countries?error=not_found";
         }
 
         model.addAttribute("country", country);
@@ -110,35 +110,35 @@ public class CountryController {
     @PostMapping("/edit/{id}")
     public String updateCountry(@PathVariable String id, @ModelAttribute @Valid CountryEntity country, RedirectAttributes redirectAttributes) {
         if (id.length() != 3) {
-            return "redirect:/countries?error=invalid_id";
+            return "redirect:/auth/countries?error=invalid_id";
         }
 
         CountryEntity existingCountry = worldService.getCountry(id);
 
         if (existingCountry == null) {
-            return "redirect:/countries?error=not_found";
+            return "redirect:/auth/countries?error=not_found";
         }
 
         if (!Objects.equals(id, country.getCode())) {
             redirectAttributes.addFlashAttribute("error", "Country code mismatch");
-            return "redirect:/countries/edit/" + id;
+            return "redirect:/auth/countries/edit/" + id;
         }
 
         worldService.updateCountry(country);
         redirectAttributes.addFlashAttribute("success", "Country updated successfully");
-        return "redirect:/countries";
+        return "redirect:/auth/countries";
     }
 
     @GetMapping("/delete/{id}")
     public String deleteCountryForm(@PathVariable String id, Model model) {
         if (id.length() != 3) {
-            return "redirect:/countries?error=invalid_id";
+            return "redirect:/auth/countries?error=invalid_id";
         }
 
         CountryEntity country = worldService.getCountry(id);
 
         if (country == null) {
-            return "redirect:/countries?error=not_found";
+            return "redirect:/auth/countries?error=not_found";
         }
 
         model.addAttribute("country", country);
@@ -148,18 +148,18 @@ public class CountryController {
     @PostMapping("/delete/{id}")
     public String deleteCountryConfirmed(@PathVariable String id, RedirectAttributes redirectAttributes) {
         if (id.length() != 3) {
-            return "redirect:/countries?error=invalid_id";
+            return "redirect:/auth/countries?error=invalid_id";
         }
 
         CountryEntity country = worldService.getCountry(id);
 
         if (country == null) {
-            return "redirect:/countries?error=not_found";
+            return "redirect:/auth/countries?error=not_found";
         }
 
         worldService.deleteCountry(country);
         redirectAttributes.addFlashAttribute("success", "Country deleted successfully");
-        return "redirect:/countries";
+        return "redirect:/auth/countries";
     }
 }
 
