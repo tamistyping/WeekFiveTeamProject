@@ -51,6 +51,13 @@ public class CountryController {
         return "auth/countries/detail";
     }
 
+    @GetMapping("/no-head-of-state")
+    public String getCountriesWithNoHeadOfState(Model model) {
+        List<CountryEntity> countriesWithoutHeadOfState = worldService.countriesWithNoHeadOfState();
+        model.addAttribute("countries", countriesWithoutHeadOfState);
+        return "auth/countries/list";
+    }
+
     @GetMapping("/search")
     public String searchCountryById(@RequestParam("id") String id, Model model) {
         if (id.length() != 3) {
