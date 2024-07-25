@@ -61,17 +61,28 @@ public class WorldService {
 
     // Requirement
     @Transactional
-    public String whichCountryHasMostCities() {
-        logger.info("Entered whichCountryHasMostCities method");
+    public List<CountryEntity> countriesWithMostCities() {
+        logger.info("Entered countriesWithMostCities method");
+
         List<CityEntity> cities = allCities();
         Map<String, Long> mostCitiesCount = cities.stream()
                 .collect(Collectors.groupingBy(
-                        c -> c.getCountryCode().getName()
-                        , Collectors.counting()));
+                        c -> c.getCountryCode().getName(),
+                        Collectors.counting()
+                ));
 
-        return mostCitiesCount.entrySet().stream()
-                .max(Map.Entry.comparingByValue())
-                .map(Map.Entry::getKey).orElse("");
+        long maxCityCount = mostCitiesCount.values().stream()
+                .max(Long::compare)
+                .orElse(0L);
+
+        List<String> countriesWithMaxCities = mostCitiesCount.entrySet().stream()
+                .filter(entry -> entry.getValue() == maxCityCount)
+                .map(Map.Entry::getKey)
+                .toList();
+
+        return countryRepository.findAll().stream()
+                .filter(country -> countriesWithMaxCities.contains(country.getName()))
+                .collect(Collectors.toList());
     }
 
     // Requirement

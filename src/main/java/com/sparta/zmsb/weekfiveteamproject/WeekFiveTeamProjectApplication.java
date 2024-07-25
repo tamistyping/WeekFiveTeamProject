@@ -22,7 +22,7 @@ public class WeekFiveTeamProjectApplication {
 //    @Bean
 //    CommandLineRunner runner(UserRepository userRepository, PasswordEncoder passwordEncoder) {
 //        return args -> {
-//            userRepository.save(new UserEntity("admin", passwordEncoder.encode("password"), "admin.site@mpo.com", "ADMIN"));
+//            userRepository.save(new UserEntity("admin", passwordEncoder.encode("password"), "admin.site@mpo.com", "ROLE_ADMIN"));
 //        };
 //    }
 }

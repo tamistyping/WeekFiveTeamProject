@@ -30,8 +30,15 @@ public class CountryController {
 
     @GetMapping
     public String getAllCountries(Model model) {
-        List<CountryEntity> countries = worldService.allCountries();
-        model.addAttribute("countries", countries);
+        List<CountryEntity> allCountries = worldService.allCountries();
+        model.addAttribute("countries", allCountries);
+        return "auth/countries/list";
+    }
+
+    @GetMapping("/most-cities")
+    public String getCountriesWithMostCities(Model model) {
+        List<CountryEntity> countriesWithMostCities = worldService.countriesWithMostCities();
+        model.addAttribute("countries", countriesWithMostCities);
         return "auth/countries/list";
     }
 
