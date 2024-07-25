@@ -11,33 +11,27 @@
             background-image: url('/images/Earth.jpg');
             background-size: cover;
             background-position: center;
-            height: calc(100vh - 56px);
-            position: relative;
-        }
-        .about-section {
-            position: absolute;
-            bottom: 0;
+            min-height: calc(100vh - 56px);
             width: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            color: white;
-            padding: 10px;
-            text-align: center;
-            font-weight: bold;
-        }
-        .card-deck {
-            margin-top: 20px;
+            position: relative;
         }
         .card img {
             height: 200px;
             object-fit: cover;
         }
-        .cards-container {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+        .user-table-container {
+            position: relative;
+            background: rgba(255, 255, 255, 0.8);
+        }
+        .navbar{
+            position: fixed;
             width: 100%;
-            padding: 20px;
+            top: 0;
+            z-index: 10;
+        }
+        body{
+            padding-top: 56px;
+            margin: 0;
         }
         .navbar-nav .nav-item {
             display: flex;
@@ -81,43 +75,40 @@
 </nav>
 
 <div class="container-fluid p-0">
-    <div class="user-table-container">
-        <h2>User Management</h2>
-        <table class="table table-striped">
-            <thead>
-            <tr>
-                <th scope="col">Username</th>
-                <th scope="col">Email Address</th>
-                <th scope="col">User Role</th>
-                <th scope="col">Change Role</th>
-                <th scope="col">Delete User</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="user : ${users}" th:if="${user.id} != 1">
-                <td th:text="${user.username}">Username</td>
-                <td th:text="${user.email}">Email Address</td>
-                <td th:text="${user.roles}">Email Address</td>
-                <td>
-                    <form th:action="@{/auth/secure/manage-users}" method="post">
-                        <input type="hidden" name="userId" th:value="${user.id}"/>
-                        <input type="hidden" name="role" th:value="${user.roles == 'ROLE_USER' ? 'ADMIN' : 'USER'}"/>
-                        <button type="submit" class="btn btn-primary" th:text="${user.roles == 'ROLE_USER' ? 'Grant Admin' : 'Remove Admin'}"></button>
-                    </form>
-                </td>
-                <td>
-                    <form th:action="@{/auth/secure/delete-user}" method="post">
-                        <input type="hidden" name="userId" th:value="${user.id}"/>
-                        <button type="submit" class="btn btn-danger">Delete User</button>
-                    </form>
-                </td>
-            </tr>
-            </tbody>
-        </table>
-    </div>
     <div class="world-image">
-        <div class="about-section">
-            <small>&copy; 2024 Sparta Global World Hopping MPO. All rights reserved.</small>
+        <div class="user-table-container">
+            <h2>User Management</h2>
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th scope="col">Username</th>
+                    <th scope="col">Email Address</th>
+                    <th scope="col">User Role</th>
+                    <th scope="col">Change Role</th>
+                    <th scope="col">Delete User</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="user : ${users}" th:if="${user.id} != 1">
+                    <td th:text="${user.username}">Username</td>
+                    <td th:text="${user.email}">Email Address</td>
+                    <td th:text="${user.roles}">Email Address</td>
+                    <td>
+                        <form th:action="@{/auth/secure/manage-users}" method="post">
+                            <input type="hidden" name="userId" th:value="${user.id}"/>
+                            <input type="hidden" name="role" th:value="${user.roles == 'ROLE_USER' ? 'ADMIN' : 'USER'}"/>
+                            <button type="submit" class="btn btn-primary" th:text="${user.roles == 'ROLE_USER' ? 'Grant Admin' : 'Remove Admin'}"></button>
+                        </form>
+                    </td>
+                    <td>
+                        <form th:action="@{/auth/secure/delete-user}" method="post">
+                            <input type="hidden" name="userId" th:value="${user.id}"/>
+                            <button type="submit" class="btn btn-danger">Delete User</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
