@@ -65,4 +65,7 @@ public class MpoUserDetailsService implements org.springframework.security.core.
         userEntity.setRoles("ROLE_" + role);
         userRepository.save(userEntity);
     }
+    public void deleteUser(UserEntity user) {
+        userRepository.delete(user);
+    }
 }

@@ -43,4 +43,11 @@ public class LoggedInController {
         mpoUserDetailsService.grantAdmin(user, role);
         return "redirect:/auth/secure/manage-users";
     }
+    @PostMapping("auth/secure/delete-user")
+    public String deleteUser(Model model, @RequestParam Long userId) {
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        mpoUserDetailsService.deleteUser(user);
+        return "redirect:/auth/secure/manage-users";
+    }
 }
