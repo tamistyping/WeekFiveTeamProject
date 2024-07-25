@@ -29,9 +29,8 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http.authorizeHttpRequests(authorize -> authorize
-                .requestMatchers("/", "/index","/login","/register").permitAll()
-                .requestMatchers("/auth/**").hasRole("USER")
-                        .requestMatchers("/auth/**").hasRole("ADMIN")).formLogin(formLogin ->
+                .requestMatchers("/", "/index","/login","/register","/images/**").permitAll()
+                .requestMatchers("/auth/**").hasRole("USER")).formLogin(formLogin ->
                         formLogin
                                 .loginPage("/login")
                                 .permitAll()
