@@ -21,6 +21,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.net.URI;
 import java.util.*;
@@ -64,28 +65,30 @@ public class CityController {
 //        // return "city_templates/create_city";
 //    }
 //
-    @GetMapping("/secure/new")
+    @GetMapping("/create")
     public String createCity(Model model) {
         model.addAttribute("city", new CityEntity());
+        model.addAttribute("create", true);
+        model.addAttribute("update", false);
         return "city_templates/create_city";
     }
-    @PostMapping("/secure/new")
-    public String createCityPost(@Valid @ModelAttribute("city") CityEntity cityEntity, Model model, Errors errors) {
-        if (errors.hasErrors()) {
-            return "city_templates/create_city";
+    @PostMapping("/create")
+    public String createCityPost(@RequestParam String name, @RequestParam String countryCode,
+                                 @RequestParam String district, @RequestParam Integer population) {
+        CountryEntity country = worldService.getCountry(countryCode);
+        if (country == null) {
+            throw new ResourceNotFoundException("Country with code: " + countryCode + " does not exist");
         }
 
-        List<CountryEntity> countries = worldService.allCountries();
-
-        countries = countries.stream().filter(c -> c.getCode().equals(cityEntity.getCountryCode().getCode())).toList();
-
-        if (countries.isEmpty()) {
-            throw new ResourceNotFoundException("Country with code: " + cityEntity.getCountryCode().getCode() + " does not exist");
-        }
+        CityEntity cityEntity = new CityEntity();
+        cityEntity.setName(name);
+        cityEntity.setCountryCode(country);
+        cityEntity.setDistrict(district);
+        cityEntity.setPopulation(population);
 
         worldService.createCity(cityEntity);
 
-        return "city_templates/create_city";
+        return "redirect:/api/cities/create?";
     }
 
 //    @GetMapping("/search")
@@ -115,13 +118,6 @@ public class CityController {
 //        return "city_templates/cities";
 //    }
 
-    @GetMapping("/search")
-    public String getAllCities(Model model) {
-        List<CityEntity> cities = worldService.allCities();
-        model.addAttribute("cities", cities);
-        return "city_templates/cities";
-    }
-
 //    @GetMapping("/search/{id}")
 //    public CollectionModel<EntityModel<CityEntity>> getCity(@PathVariable @Valid Integer id) {
 //
@@ -139,22 +135,39 @@ public class CityController {
 //        return CollectionModel.of(cityEntityModel, WebMvcLinkBuilder.linkTo(methodOn(CityController.class).getAllCities()).withSelfRel());
 //    }
 //
-    @GetMapping("/search/{id}")
-    public String getCity(@PathVariable @Valid Integer id, Model model) {
 
+    @GetMapping
+    public String getAllCities(Model model) {
+        List<CityEntity> cities = worldService.allCities();
+        model.addAttribute("cities", cities);
+        model.addAttribute("searchPage", false);
+        model.addAttribute("smallestDistricts", null);
+        return "city_templates/cities";
+    }
+
+    @GetMapping("/search")
+    public String searchCity(@RequestParam("cityName") String cityName, RedirectAttributes redirectAttributes) {
+        List<CityEntity> cities = worldService.allCities();
+        for (CityEntity city : cities) {
+            if (city.getName().equalsIgnoreCase(cityName)) {
+                redirectAttributes.addAttribute("id", city.getId());
+                return "redirect:/api/cities/search/{id}";
+            }
+        }
+        return "redirect:/api/cities";
+    }
+
+    @GetMapping("/search/{id}")
+    public String getCity(@PathVariable Integer id, Model model) {
         CityEntity cityEntity = worldService.getCityById(id);
         if (cityEntity == null) {
             throw new ResourceNotFoundException("City with ID: " + id + " not found");
         }
-
-        CityEntity cityEntityModel = worldService.getCityById(id);
-
-        model.addAttribute("city", cityEntityModel);
-
-        return "city_templates/city";
+        model.addAttribute("cities", List.of(cityEntity));
+        model.addAttribute("searchPage", true);
+        model.addAttribute("smallestDistricts", null);
+        return "city_templates/cities";
     }
-
-
 
 //    @GetMapping("/districts-with-lowest-population")
 //    public String getDistrictsWithLowestPopulation() {
@@ -163,8 +176,13 @@ public class CityController {
 //
     @GetMapping("/districts-with-lowest-population")
     public String getDistrictsWithLowestPopulation(Model model) {
+        List<CityEntity> cities = worldService.allCities();
+        model.addAttribute("cities", cities);
         model.addAttribute("smallestDistricts", worldService.getSmallestDistrictsByPopulation());
-        return "city_templates/districts_with_lowest_population";
+        model.addAttribute("searchPage", false);
+        model.addAttribute("update", false);
+        model.addAttribute("create", false);
+        return "city_templates/cities";
     }
 //
 //    @PutMapping("/secure/update/{id}")
@@ -204,16 +222,38 @@ public class CityController {
 //        return ResponseEntity.noContent().build();
 //    }
 
-    @GetMapping("/secure/delete")
-    public String deleteCity() {;
-        return "city_templates/delete_city";
+    @GetMapping("/update/{id}")
+    public String updateCity(@PathVariable Integer id, Model model) {
+        CityEntity city = worldService.getCityById(id);
+        model.addAttribute("city", city);
+        model.addAttribute("update", true);
+        model.addAttribute("create", false);
+        model.addAttribute("smallestDistricts", null);
+        return "city_templates/create_city";
     }
 
-    @DeleteMapping("/secure/delete")
-    public String deleteCityDelete(@Valid @ModelAttribute("cityID") Integer id, Errors errors) {
-        if (errors.hasErrors()) {
-            return "city_templates/delete_city";
+    @PostMapping("/update/{id}")
+    public String updateCityPost(@PathVariable Integer id, @RequestParam String name, @RequestParam String countryCode,
+                                 @RequestParam String district, @RequestParam Integer population) {
+
+        CountryEntity country = worldService.getCountry(countryCode);
+        if (country == null) {
+            throw new ResourceNotFoundException("Country with code: " + countryCode + " does not exist");
         }
+
+        CityEntity city = new CityEntity();
+        city.setId(id);
+        city.setName(name);
+        city.setCountryCode(worldService.getCountry(countryCode));
+        city.setDistrict(district);
+        city.setPopulation(population);
+
+        worldService.updateCity(city);
+        return "redirect:/api/cities/update/" + id;
+    }
+
+    @PostMapping("/delete/{id}")
+    public String deleteCityDelete(@PathVariable Integer id) {
         CityEntity city = worldService.getCityById(id);
         if (city == null) {
             throw new ResourceNotFoundException("City with ID: " + id + " not found");
@@ -221,6 +261,6 @@ public class CityController {
 
         worldService.deleteCity(id);
 
-        return "city_templates/delete_city";
+        return "redirect:/api/cities";
     }
 }
