@@ -24,6 +24,29 @@
             text-align: center;
             font-weight: bold;
         }
+        .card-deck {
+            margin-top: 20px;
+        }
+        .card img {
+            height: 200px;
+            object-fit: cover;
+        }
+        .cards-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            padding: 20px;
+        }
+        .navbar-nav .nav-item {
+            display: flex;
+            align-items: center;
+        }
+        .navbar-nav .nav-item .btn-link {
+            padding: 0;
+            margin: 0;
+        }
     </style>
 </head>
 
@@ -35,17 +58,22 @@
         <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
+        <span class="navbar-text mr-auto">
+            <span th:if="${#authentication.principal != null}">
+                Welcome, <span th:text="${#authentication.principal.username}">User</span>!
+            </span>
+        </span>
         <ul class="navbar-nav ml-auto">
             <li class="nav-item">
-                <a class="nav-link" href="secure/manage-users"></a>
+                <a class="nav-link" href="secure/manage-users">Manage Users</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="login">My Account</a>
             </li>
             <li class="nav-item">
-                <form action="/logout" method="post" style="display: inline;">
-                    <input type = "hidden"th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                    <button type="submit" class="btn btn-link nav-link" style="display: inline; border: none; background: none; padding: 0; cursor: pointer;">Log Out</button>
+                <form action="/logout" method="post" class = "form-inline">
+                    <input type = "hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                    <button type="submit" class="btn btn-link nav-link">Log Out</button>
                 </form>
             </li>
         </ul>
@@ -54,6 +82,37 @@
 
 <div class="container-fluid p-0">
     <div class="world-image">
+        <div class="cards-container">
+            <div class="card-deck">
+                <div class="card">
+                    <a href="/countries">
+                        <img src="/images/countries.jpg" class="card-img-top" alt="Countries">
+                    </a>
+                    <div class="card-body">
+                        <h5 class="card-title">Countries</h5>
+                        <p class="card-text">Explore information about various countries.</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <a href="/cities">
+                        <img src="/images/cities.jpg" class="card-img-top" alt="Cities">
+                    </a>
+                    <div class="card-body">
+                        <h5 class="card-title">Cities</h5>
+                        <p class="card-text">Discover details about different cities.</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <a href="/languages">
+                        <img src="/images/languages.jpg" class="card-img-top" alt="Languages">
+                    </a>
+                    <div class="card-body">
+                        <h5 class="card-title">Languages</h5>
+                        <p class="card-text">Learn about various languages spoken around the world.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="about-section">
             <small>&copy; 2024 Sparta Global World Hopping MPO. All rights reserved.</small>
         </div>

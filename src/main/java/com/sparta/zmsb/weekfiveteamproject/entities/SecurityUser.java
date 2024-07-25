@@ -11,7 +11,7 @@ import java.util.List;
 
 public class SecurityUser implements UserDetails {
 
-    private UserEntity user;
+    private final UserEntity user;
 
     public SecurityUser(UserEntity user) {
         this.user = user;

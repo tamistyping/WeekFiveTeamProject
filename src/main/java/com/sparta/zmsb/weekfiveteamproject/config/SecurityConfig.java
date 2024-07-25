@@ -1,14 +1,12 @@
 package com.sparta.zmsb.weekfiveteamproject.config;
 
 
-import com.sparta.zmsb.weekfiveteamproject.controllers.WelcomeController;
-import com.sparta.zmsb.weekfiveteamproject.service.UserDetailsService;
+import com.sparta.zmsb.weekfiveteamproject.service.MpoUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.LogoutConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,11 +17,11 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    private final UserDetailsService userDetailsService;
+    private final MpoUserDetailsService mpoUserDetailsService;
 
     @Autowired
-    public SecurityConfig(UserDetailsService userDetailsService) {
-        this.userDetailsService = userDetailsService;
+    public SecurityConfig(MpoUserDetailsService mpoUserDetailsService) {
+        this.mpoUserDetailsService = mpoUserDetailsService;
     }
 
     @Bean
@@ -43,7 +41,7 @@ public class SecurityConfig {
                 .logout(logout ->
                         logout.logoutSuccessUrl("/")
                                 .permitAll())
-                .userDetailsService(userDetailsService).build();
+                .userDetailsService(mpoUserDetailsService).build();
     }
     @Bean
     PasswordEncoder passwordEncoder() {

@@ -2,7 +2,7 @@ package com.sparta.zmsb.weekfiveteamproject.controllers;
 
 import com.sparta.zmsb.weekfiveteamproject.entities.UserEntity;
 import com.sparta.zmsb.weekfiveteamproject.repositories.UserRepository;
-import com.sparta.zmsb.weekfiveteamproject.service.UserDetailsService;
+import com.sparta.zmsb.weekfiveteamproject.service.MpoUserDetailsService;
 import jakarta.validation.Valid;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -16,12 +16,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 public class WelcomeController {
 
     private final UserRepository userRepository;
-    private final UserDetailsService userDetailsService;
+    private final MpoUserDetailsService mpoUserDetailsService;
     private final PasswordEncoder passwordEncoder;
 
-    public WelcomeController(final UserRepository userRepository, UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
+    public WelcomeController(final UserRepository userRepository, MpoUserDetailsService mpoUserDetailsService, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
-        this.userDetailsService = userDetailsService;
+        this.mpoUserDetailsService = mpoUserDetailsService;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -48,13 +48,13 @@ public class WelcomeController {
             return "login";
         }
 
-        if(userDetailsService.validateUser(user.getUsername())){
+        if(mpoUserDetailsService.validateUser(user.getUsername())){
             model.addAttribute("userError", "Username does not exist");
             model.addAttribute("registerRedirect");
             return "login";
         }
 
-        if(userDetailsService.validateUserPassword(user.getUsername(), user.getPassword())){
+        if(mpoUserDetailsService.validateUserPassword(user.getUsername(), user.getPassword())){
             return "auth/home"; //change to logged in landing page
         }
 
@@ -70,26 +70,26 @@ public class WelcomeController {
     @PostMapping("/register")
     public String register(@Valid @ModelAttribute("user") UserEntity userEntity, Errors errors, Model model) {
 
-        if(userDetailsService.validateNewUsername(userEntity)) {
+        if(mpoUserDetailsService.validateNewUsername(userEntity)) {
             model.addAttribute("nameerror", "Username is already in use.");
-            if(userDetailsService.validateNewEmail(userEntity)){
+            if(mpoUserDetailsService.validateNewEmail(userEntity)){
                 model.addAttribute("emailerror", "Email is already in use.");
             }
-            if(userDetailsService.validateNewPassword(userEntity.getPassword())){
+            if(mpoUserDetailsService.validateNewPassword(userEntity.getPassword())){
                 model.addAttribute("passworderror", "Password must be 8 characters or longer.");
             }
             return "register";
         }
 
-        if(userDetailsService.validateNewEmail(userEntity)){
+        if(mpoUserDetailsService.validateNewEmail(userEntity)){
             model.addAttribute("emailerror", "Email is already in use.");
-            if(userDetailsService.validateNewPassword(userEntity.getPassword())) {
+            if(mpoUserDetailsService.validateNewPassword(userEntity.getPassword())) {
                 model.addAttribute("passworderror", "Password must be 8 characters or longer.");
                 return "register";
             }
         }
 
-        if(userDetailsService.validateNewPassword(userEntity.getPassword())){
+        if(mpoUserDetailsService.validateNewPassword(userEntity.getPassword())){
             model.addAttribute("passworderror", "Password must be 8 characters or longer.");
             return "register";
         }
