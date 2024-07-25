@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -51,10 +51,10 @@
             </dl>
         </div>
         <div class="card-footer">
-            <a href="/countries" class="btn btn-primary">Back to List</a>
-            <form th:action="@{/countries/delete/{id}(id=${country.code})}" method="post" style="display:inline;">
+            <a href="/auth/countries" class="btn btn-primary">Back to List</a>
+            <form th:action="@{/auth/countries/delete/{id}(id=${country.code})}" method="post" style="display:inline;">
                 <input type="hidden" name="_method" value="delete"/>
-                <button type="submit" class="btn btn-danger">Delete</button>
+                <button sec:authorize="hasRole('ROLE_ADMIN')" type="submit" class="btn btn-danger">Delete</button>
             </form>
         </div>
     </div>

@@ -1,8 +1,10 @@
 package com.sparta.zmsb.weekfiveteamproject.controllers;
 
+import com.sparta.zmsb.weekfiveteamproject.entities.CountryEntity;
 import com.sparta.zmsb.weekfiveteamproject.entities.UserEntity;
 import com.sparta.zmsb.weekfiveteamproject.repositories.UserRepository;
 import com.sparta.zmsb.weekfiveteamproject.service.MpoUserDetailsService;
+import com.sparta.zmsb.weekfiveteamproject.service.WorldService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -12,17 +14,21 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.List;
+
 @Controller
 public class LoggedInController {
 
     private final UserRepository userRepository;
     private final MpoUserDetailsService mpoUserDetailsService;
+    private final WorldService worldService;
     private final PasswordEncoder passwordEncoder;
 
-    public LoggedInController(final UserRepository userRepository, MpoUserDetailsService mpoUserDetailsService, PasswordEncoder passwordEncoder) {
+    public LoggedInController(final UserRepository userRepository, MpoUserDetailsService mpoUserDetailsService, PasswordEncoder passwordEncoder, WorldService worldService) {
         this.userRepository = userRepository;
         this.mpoUserDetailsService = mpoUserDetailsService;
         this.passwordEncoder = passwordEncoder;
+        this.worldService = worldService;
     }
 
     @GetMapping("/auth/my-account")
@@ -50,4 +56,11 @@ public class LoggedInController {
         mpoUserDetailsService.deleteUser(user);
         return "redirect:/auth/secure/manage-users";
     }
+    @GetMapping("auth/countries/")
+    public String countries(Model model) {
+        List<CountryEntity> countries = worldService.allCountries();
+        model.addAttribute("countries", countries);
+        return "/auth/countries/list";
+    }
+    //todo cities and country languages
 }
