@@ -5,6 +5,7 @@ import com.sparta.zmsb.weekfiveteamproject.service.MpoUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -15,6 +16,7 @@ import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
 
     private final MpoUserDetailsService mpoUserDetailsService;
@@ -28,7 +30,11 @@ public class SecurityConfig {
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http.authorizeHttpRequests(authorize -> authorize
                 .requestMatchers("/", "/index","/login","/register","/images/**").permitAll()
-                .requestMatchers("/auth/**").hasRole("USER")).formLogin(formLogin ->
+                .requestMatchers("/auth/**").hasAnyRole("USER","ADMIN")
+                        .requestMatchers("/secure/**").hasRole("ADMIN")
+                        .anyRequest().authenticated())
+
+                .formLogin(formLogin ->
                         formLogin
                                 .loginPage("/login")
                                 .permitAll()
