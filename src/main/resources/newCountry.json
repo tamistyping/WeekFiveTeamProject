@@ -1,0 +1,17 @@
+{
+  "code":"GMC",
+  "name":"Grand Monarchy of Chris",
+  "continent":"Europe",
+  "region":"Southern Europe",
+  "surfaceArea": 468.00,
+  "indepYear": 1995,
+  "population": 2000000,
+  "lifeExpectancy": 90.5,
+  "gnp": 2000,
+  "localName": "Best Country Ever",
+  "governmentForm": "Absolute Monarchy",
+  "headOfState": "Chris",
+  "capital": null,
+  "code2": "MC",
+  "gnpold": null
+}

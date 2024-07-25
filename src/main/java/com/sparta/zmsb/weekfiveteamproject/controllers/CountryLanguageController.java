@@ -36,11 +36,12 @@ public class CountryLanguageController {
     }
 
     @GetMapping("/search/all-languages")
-    public ResponseEntity<List<EntityModel<String>>> getAllUniqueLanguages(){
-        List<EntityModel<String>> allLanguages = worldService.getAllLanguages().stream()
-                .map(language -> EntityModel.of(language, countriesLinks(language)
-                        )).toList();
-        return new ResponseEntity<>(allLanguages, HttpStatus.OK);
+    public ResponseEntity<List<String>> getAllUniqueLanguages(){
+
+//        List<EntityModel<String>> allLanguages = worldService.getAllLanguages().stream()
+//                .map(language -> EntityModel.of(language, countriesLinks(language)
+//                        )).toList();
+        return new ResponseEntity<>(worldService.getAllLanguages(), HttpStatus.OK);
     }
 
     @GetMapping("/search")
