@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Language Information</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .card img {
+            height: 200px;
+            object-fit: cover;
+        }
+        .navbar{
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 10;
+        }
+        body{
+            padding-top: 56px;
+            margin: 0;
+        }
+        .navbar-nav .nav-item {
+            display: flex;
+            align-items: center;
+        }
+        .navbar-nav .nav-item .btn-link {
+            padding: 0;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="/auth/home">World Hopping MPO</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <span class="navbar-text mr-auto">
+            <span th:if="${#authentication.principal != null}">
+                Welcome, <span th:text="${#authentication.principal.username}">User</span>!
+            </span>
+        </span>
+        <ul class="navbar-nav ml-auto">
+            <li sec:authorize="hasRole('ROLE_ADMIN')" class="nav-item">
+                <a class="nav-link" href="secure/manage-users">Manage Users</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/auth/my-account">My Account</a>
+            </li>
+            <li class="nav-item">
+                <form action="/logout" method="post" class = "form-inline">
+                    <input type = "hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                    <button type="submit" class="btn btn-link nav-link">Log Out</button>
+                </form>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<div class="container mt-5">
+    <h1 class="text-center mb-4">Languages!</h1>
+
+    <form th:action="@{/api/languages/auth/search}" method="get" class="mb-4">
+        <div class="input-group mb-3">
+            <input type="text" class="form-control" placeholder="Enter country code" aria-label="Country code" aria-describedby="button-addon2" name="countryCode">
+            <input type="text" class="form-control" placeholder="Enter language" aria-label="Language name" aria-describedby="button-addon2" name="languageName">
+            <button class="btn btn-outline-secondary" type="submit" id="button-addon2">SEARCH</button>
+        </div>
+    </form>
+
+    <div sec:authorize="hasRole('ROLE_ADMIN')" class="d-flex mb-3">
+        <form th:if="${!searchPage}" th:action="@{/api/languages/auth/create}" method="get" class="mx-2">
+            <button type="submit" class="btn btn-outline-dark btn-lg">Create</button>
+        </form>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered">
+            <thead class="table-dark">
+            <tr>
+                <th>Country Code</th>
+                <th>Language</th>
+                <th>Official</th>
+                <th>Percentage Spoken</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="language : ${languages}">
+                <td th:text="${language.getId().getCountryCode()}"></td>
+                <td th:text="${language.getId().getLanguage()}"></td>
+                <td th:text="${language.getIsOfficial()}"></td>
+                <td th:text="${language.getPercentage()} + '%'"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div th:if="${searchPage}" th:each="language : ${languages}" class="d-flex mb-3">
+        <div>
+            <a th:if="${searchPage}" th:href="@{/api/languages/auth}" class="btn btn-outline-dark btn-lg mx-2">Back</a>
+        </div>
+        <form sec:authorize="hasRole('ROLE_ADMIN')" th:if="${searchPage}" th:action="@{'/api/languages/auth/update/' + ${language.getId().getCountryCode()} + '/' + ${language.getId().getLanguage()}}" method="get" class="mx-2">
+            <button type="submit" class="btn btn-outline-dark btn-lg">Update Language</button>
+        </form>
+        <form sec:authorize="hasRole('ROLE_ADMIN')" th:if="${searchPage}" th:action="@{/api/languages/auth/delete/{countryCode}/{language}(countryCode=${language.getId().getCountryCode()}, language=${language.getId().getLanguage()})}" method="post" class="ms-auto">
+            <button type="submit" class="btn btn-outline-danger btn-lg">Delete Language</button>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>
