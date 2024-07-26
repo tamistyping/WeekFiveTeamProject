@@ -11,27 +11,15 @@
 
     <form th:action="@{/api/languages/search}" method="get" class="mb-4">
         <div class="input-group mb-3">
+            <input type="text" class="form-control" placeholder="Enter country code" aria-label="Country code" aria-describedby="button-addon2" name="countryCode">
             <input type="text" class="form-control" placeholder="Enter language" aria-label="Language name" aria-describedby="button-addon2" name="languageName">
             <button class="btn btn-outline-secondary" type="submit" id="button-addon2">SEARCH</button>
         </div>
     </form>
 
     <div class="d-flex mb-3">
-        <form th:if="${!searchPage}" th:action="@{/api/cities/create}" method="get" class="mx-2">
+        <form th:if="${!searchPage}" th:action="@{/api/languages/create}" method="get" class="mx-2">
             <button type="submit" class="btn btn-outline-dark btn-lg">Create</button>
-        </form>
-        <form th:if="${!searchPage}" th:action="@{/api/cities/districts-with-lowest-population}" method="get" class="mx-2">
-            <button type="submit" class="btn btn-outline-dark btn-lg">Smallest Districts</button>
-        </form>
-    </div>
-
-    <div th:if="${smallestDistricts}" class="d-flex mb-3">
-        <p>
-            <b>Smallest Districts:</b><br>
-            <span th:text="${smallestDistricts}"></span>
-        </p>
-        <form th:if="${!searchPage}" th:action="@{/api/cities}" method="get" class="mx-2">
-            <button type="submit" class="btn btn-outline-dark btn-lg">Collapse</button>
         </form>
     </div>
 
@@ -39,34 +27,32 @@
         <table class="table table-striped table-bordered">
             <thead class="table-dark">
             <tr>
-                <th>City Name</th>
                 <th>Country Code</th>
-                <th>Country Name</th>
-                <th>District</th>
-                <th>Population</th>
+                <th>Language</th>
+                <th>Official</th>
+                <th>Percentage Spoken</th>
             </tr>
             </thead>
             <tbody>
-            <tr th:each="city : ${cities}">
-                <td th:text="${city.getName()}"></td>
-                <td th:text="${city.getCountryCode().getCode()}"></td>
-                <td th:text="${city.getCountryCode().getName()}"></td>
-                <td th:text="${city.getDistrict()}"></td>
-                <td th:text="${city.getPopulation()}"></td>
+            <tr th:each="language : ${languages}">
+                <td th:text="${language.getId().getCountryCode()}"></td>
+                <td th:text="${language.getId().getLanguage()}"></td>
+                <td th:text="${language.getIsOfficial()}"></td>
+                <td th:text="${language.getPercentage()} + '%'"></td>
             </tr>
             </tbody>
         </table>
     </div>
 
-    <div th:if="${searchPage}" th:each="city : ${cities}" class="d-flex mb-3">
+    <div th:if="${searchPage}" th:each="language : ${languages}" class="d-flex mb-3">
         <div>
-            <a th:if="${searchPage}" th:href="@{/api/cities}" class="btn btn-outline-dark btn-lg mx-2">Back</a>
+            <a th:if="${searchPage}" th:href="@{/api/languages}" class="btn btn-outline-dark btn-lg mx-2">Back</a>
         </div>
-        <form th:if="${searchPage}" th:action="@{/api/cities/update/{id}(id=${city.id})}" method="get" class="mx-2">
-            <button type="submit" class="btn btn-outline-dark btn-lg">Update City</button>
+        <form th:if="${searchPage}" th:action="@{/api/languages/update/{countryCode}(countryCode=${language.getId().getCountryCode()})/{language}(language=${language.getId().getLanguage()}, countryCode=${language.getId().getCountryCode()})}" method="get" class="mx-2">
+            <button type="submit" class="btn btn-outline-dark btn-lg">Update Language</button>
         </form>
-        <form th:if="${searchPage}" th:action="@{/api/cities/delete/{cityId}(cityId=${city.getId()})}" method="post" class="ms-auto">
-            <button type="submit" class="btn btn-outline-danger btn-lg">Delete City</button>
+        <form th:if="${searchPage}" th:action="@{/api/languages/delete/{countryCode}(countryCode=${language.getId().getCountryCode()})/{language}(language=${language.getId().getLanguage()})}" method="post" class="ms-auto">
+            <button type="submit" class="btn btn-outline-danger btn-lg">Delete Language</button>
         </form>
     </div>
 </div>

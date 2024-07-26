@@ -61,12 +61,13 @@ public class CountryLanguageController {
     }
 
     @GetMapping("/search")
-    public String searchLanguages(@RequestParam("languageName") String languageString, RedirectAttributes redirectAttributes) {
+    public String searchLanguages(@RequestParam("countryCode") String countryCode, @RequestParam("languageName") String languageString, RedirectAttributes redirectAttributes) {
         List<CountrylanguageEntity> languages = worldService.allLanguages();
         for (CountrylanguageEntity language : languages) {
-            if (language.getId().getLanguage().equalsIgnoreCase(languageString)) {
-                redirectAttributes.addAttribute("id", language.getId());
-                return "redirect:/api/cities/search/{countryCode}/{language}";
+            if (language.getId().getCountryCode().equalsIgnoreCase(countryCode) && language.getId().getLanguage().equalsIgnoreCase(languageString)) {
+                redirectAttributes.addAttribute("countryCode", language.getId().getCountryCode());
+                redirectAttributes.addAttribute("language", language.getId().getLanguage());
+                return "redirect:/api/languages/search/{countryCode}/{language}";
             }
         }
         return "redirect:/api/languages";
@@ -225,51 +226,36 @@ public class CountryLanguageController {
 //                        methodOn(CountryController.class).getCountry(country.getCode())).withRel(country.getName())).toList();
 //    }
 
-
-
-//    @GetMapping("/update/{id}")
-//    public String updateCity(@PathVariable Integer id, Model model) {
-//        CityEntity city = worldService.getCityById(id);
-//        model.addAttribute("city", city);
-//        model.addAttribute("update", true);
-//        model.addAttribute("create", false);
-//        model.addAttribute("smallestDistricts", null);
-//        return "city_templates/create_city";
-//    }
-//
-//    @PostMapping("/update/{id}")
-//    public String updateCityPost(@PathVariable Integer id, @RequestParam String name, @RequestParam String countryCode,
-//                                 @RequestParam String district, @RequestParam Integer population) {
-//
-//        CountryEntity country = worldService.getCountry(countryCode);
-//        if (country == null) {
-//            throw new ResourceNotFoundException("Country with code: " + countryCode + " does not exist");
-//        }
-//
-//        CityEntity city = new CityEntity();
-//        city.setId(id);
-//        city.setName(name);
-//        city.setCountryCode(worldService.getCountry(countryCode));
-//        city.setDistrict(district);
-//        city.setPopulation(population);
-//
-//        worldService.updateCity(city);
-//        return "redirect:/api/cities/update/" + id;
-//    }
-
     @GetMapping("/update/{countryCode}/{language}")
     public String updateLanguage(@PathVariable String countryCode, @PathVariable String language, Model model) {
-        List<CountrylanguageEntity> languages = worldService.allLanguages().stream().filter(l -> l.getId().getCountryCode().equals(countryCode) && l.getId().getLanguage().equals(language)).toList();
+        List<CountrylanguageEntity> languages = worldService.allLanguages().stream().filter(l -> l.getId().getCountryCode().equalsIgnoreCase(countryCode) && l.getId().getLanguage().equalsIgnoreCase(language)).toList();
+        if (languages.isEmpty()) {
+            throw new ResourceNotFoundException("Language with country code: " + countryCode + " and language: " + language + " not found");
+        }
         model.addAttribute("language", languages.getFirst());
         model.addAttribute("update", true);
         model.addAttribute("create", false);
         return "country_language_templates/create_language";
     }
 
-//    @PostMapping("/update/{countryCode}/{language}")
-//    public String updateLanguagePost(@RequestParam)
+    @PostMapping("/update/{countryCode}/{language}")
+    public String updateLanguagePost(@PathVariable String countryCode, @PathVariable String language, @RequestParam String isOfficial, @RequestParam BigDecimal percentage) {
+        CountrylanguageEntity countrylanguageEntity = new CountrylanguageEntity();
 
-    @GetMapping("/delete/{countryCode}/{language}")
+        CountrylanguageEntityId cleId = new CountrylanguageEntityId();
+        cleId.setCountryCode(countryCode);
+        cleId.setLanguage(language);
+
+        countrylanguageEntity.setId(cleId);
+        countrylanguageEntity.setIsOfficial(isOfficial);
+        countrylanguageEntity.setPercentage(percentage);
+
+        worldService.updateCountryLanguageEntity(countrylanguageEntity);
+
+        return "redirect:/api/languages/update/" + countryCode + "/" + language;
+    }
+
+    @PostMapping("/delete/{countryCode}/{language}")
     public String deleteLanguage(@PathVariable String countryCode, @PathVariable String language) {
         List<CountrylanguageEntity> languages = worldService.allLanguages().stream().filter(l -> l.getId().getCountryCode().equals(countryCode) && l.getId().getLanguage().equals(language)).toList();
         if (languages.isEmpty()) {
@@ -277,7 +263,7 @@ public class CountryLanguageController {
         }
 
         worldService.deleteCountryLanguageEntity(languages.getFirst());
-        return "country_language_templates/delete_language";
+        return "redirect:/api/languages";
     }
 
 
