@@ -83,7 +83,7 @@
             <b>Smallest Districts:</b><br>
             <span th:text="${smallestDistricts}"></span>
         </p>
-        <form th:if="${!searchPage}" th:action="@{/api/cities/auth}" method="get" class="mx-2">
+        <form th:if="${!searchPage}" th:action="@{/auth/cities}" method="get" class="mx-2">
             <button type="submit" class="btn btn-outline-dark btn-lg">Collapse</button>
         </form>
     </div>
