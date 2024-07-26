@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -41,7 +41,7 @@
         </span>
         <ul class="navbar-nav ml-auto">
             <li sec:authorize="hasRole('ROLE_ADMIN')" class="nav-item">
-                <a class="nav-link" href="secure/manage-users">Manage Users</a>
+                <a class="nav-link" href="/secure/manage-users">Manage Users</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="/auth/my-account">My Account</a>
@@ -102,11 +102,14 @@
 
                 <dt class="col-sm-3">Percentage of Population Speaking Official Language</dt>
                 <dd class="col-sm-9" th:text="${percentageSpeaking}">0%</dd>
+
+                <dt class="col-sm-3">Percentage of Population Living in Largest City</dt>
+                <dd class="col-sm-9" th:text="${percentageInLargestCity != null ? percentageInLargestCity + '%' : 'Data not available'}">0%</dd>
             </dl>
         </div>
         <div class="card-footer">
             <a href="/auth/countries" class="btn btn-primary">Back to List</a>
-            <a href="/auth/countries/edit/{country.code}" class="btn btn-warning">Edit</a>
+            <a th:href="@{/auth/countries/edit/{id}(id=${country.code})}" class="btn btn-warning">Edit</a>
             <form th:action="@{/auth/countries/delete/{id}(id=${country.code})}" method="post" style="display:inline;">
                 <input type="hidden" name="_method" value="delete"/>
                 <button sec:authorize="hasRole('ROLE_ADMIN')" type="submit" class="btn btn-danger">Delete</button>

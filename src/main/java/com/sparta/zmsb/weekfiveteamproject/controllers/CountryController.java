@@ -1,10 +1,14 @@
 package com.sparta.zmsb.weekfiveteamproject.controllers;
 
+import com.sparta.zmsb.weekfiveteamproject.entities.CityEntity;
 import com.sparta.zmsb.weekfiveteamproject.entities.CountryEntity;
+import com.sparta.zmsb.weekfiveteamproject.repositories.CityRepository;
 import com.sparta.zmsb.weekfiveteamproject.service.WorldService;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +26,8 @@ public class CountryController {
 
     private final WorldService worldService;
 
-    public CountryController(final WorldService worldService) {
+
+    public CountryController(final WorldService worldService, CityRepository cityRepository) {
         this.worldService = worldService;
     }
 
@@ -54,12 +59,16 @@ public class CountryController {
 
         int speakingPopulation = worldService.amountOfPeopleSpeakingOfficialLanguage(id);
         int totalPopulation = country.getPopulation();
-
         double percentageSpeaking = totalPopulation > 0 ? (speakingPopulation * 100.0) / totalPopulation : 0;
+
+        String percentageInLargestCity = worldService.percentageOfGivenCountriesPopulationThatLivesInTheLargestCity(country.getName());
+
+        System.out.println("Percentage in Largest City: " + percentageInLargestCity);
 
         model.addAttribute("country", country);
         model.addAttribute("speakingPopulation", speakingPopulation);
         model.addAttribute("percentageSpeaking", percentageSpeaking);
+        model.addAttribute("percentageInLargestCity", percentageInLargestCity);
 
         return "auth/countries/detail";
     }
@@ -112,28 +121,22 @@ public class CountryController {
         return "redirect:/auth/countries";
     }
 
-    @PostMapping("/edit/{id}")
-    public String updateCountry(@PathVariable String id, @ModelAttribute @Valid CountryEntity country,
-                                BindingResult bindingResult, RedirectAttributes redirectAttributes) {
-        if (bindingResult.hasErrors()) {
+    @GetMapping("/edit/{code}")
+    public String editCountryForm(@PathVariable("code") String code, Model model) {
+        CountryEntity country = worldService.getCountry(code);
+        model.addAttribute("country", country);
+        return "auth/countries/edit";
+    }
+
+    @PostMapping("/edit/{code}")
+    public String editCountry(@PathVariable("code") String code, @ModelAttribute CountryEntity country, BindingResult result) {
+        if (result.hasErrors()) {
             return "auth/countries/edit";
         }
-
-        CountryEntity existingCountry = worldService.getCountry(id);
-
-        if (existingCountry == null) {
-            return "redirect:/auth/countries?error=not_found";
-        }
-
-        if (!Objects.equals(id, country.getCode())) {
-            redirectAttributes.addFlashAttribute("error", "Country code mismatch");
-            return "redirect:/auth/countries/edit/" + id;
-        }
-
-        worldService.updateCountry(country); // Update the country
-        redirectAttributes.addFlashAttribute("success", "Country updated successfully");
+        worldService.updateCountry(country);
         return "redirect:/auth/countries";
     }
+
 
     @GetMapping("/delete/{id}")
     public String deleteCountryForm(@PathVariable String id, Model model) {
@@ -148,27 +151,30 @@ public class CountryController {
         }
 
         model.addAttribute("country", country);
-        return "countries/delete";
-    }
-
-    @PostMapping("/delete/{id}")
-    public String deleteCountryConfirmed(@PathVariable String id, RedirectAttributes redirectAttributes) {
-        if (id.length() != 3) {
-            return "redirect:/auth/countries?error=invalid_id";
-        }
-
-        CountryEntity country = worldService.getCountry(id);
-
-        if (country == null) {
-            return "redirect:/auth/countries?error=not_found";
-        }
-
-        worldService.deleteCountry(country);
-        redirectAttributes.addFlashAttribute("success", "Country deleted successfully");
         return "redirect:/auth/countries";
     }
 
+    @PostMapping("/delete/{id}")
+    public String deleteCountry(@PathVariable String id, RedirectAttributes redirectAttributes) {
+        try {
+            CountryEntity country = worldService.getCountry(id);
+            if (country != null) {
+                worldService.deleteCountry(country);
+                redirectAttributes.addFlashAttribute("success", "Country deleted successfully");
+            } else {
+                redirectAttributes.addFlashAttribute("error", "Country not found");
+            }
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Error occurred while deleting country: " + e.getMessage());
+        }
+
+        return "redirect:/auth/countries";
+    }
+
+
 }
+
+
 
 
 

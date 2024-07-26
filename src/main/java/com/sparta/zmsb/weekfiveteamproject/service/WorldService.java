@@ -15,6 +15,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
 
 
+import java.text.DecimalFormat;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -35,20 +36,6 @@ public class WorldService {
         this.cityRepository = cityRepository;
         this.countryRepository = countryRepository;
         this.countryLanguageRepository = countryLanguageRepository;
-    }
-
-    // Delete
-    @Transactional
-    public void deleteCity(Integer id) {
-        logger.info("Entered deleteCity method");
-        Optional<CityEntity> cityOptional = cityRepository.findById(id);
-
-        if (cityOptional.isPresent()) {
-            cityRepository.delete(cityOptional.get());
-        } else {
-            logger.info("Encountered error: city not found");
-            throw new RuntimeException("City with id " + id + " not found");
-        }
     }
 
     // Requirement
@@ -85,17 +72,29 @@ public class WorldService {
                 .collect(Collectors.toList());
     }
 
-    // Requirement
     @Transactional
-    public double percentageOfGivenCountriesPopulationThatLivesInTheLargestCity(String countryName) {
+    public String percentageOfGivenCountriesPopulationThatLivesInTheLargestCity(String countryName) {
         logger.info("Entered percentageOfGivenCountriesPopulationThatLivesInTheLargestCity method");
+
         List<CityEntity> cities = allCities();
         List<CountryEntity> countries = allCountries();
 
         String countryCode = getCountryCode(countryName, countries);
         int countryTotalPopulation = getCountryTotalPopulation(countries, countryCode);
         int biggestCityPopulation = getBiggestCityPopulation(cities, countryCode);
-        return (double) biggestCityPopulation / countryTotalPopulation * 100;
+
+        double percentage = (double) biggestCityPopulation / countryTotalPopulation * 100;
+
+        // Format percentage to 1 decimal place
+        DecimalFormat df = new DecimalFormat("#.0");
+        String formattedPercentage = df.format(percentage);
+
+        logger.info("Country Code: " + countryCode);
+        logger.info("Country Total Population: " + countryTotalPopulation);
+        logger.info("Biggest City Population: " + biggestCityPopulation);
+        logger.info("Formatted Percentage in Largest City: " + formattedPercentage);
+
+        return formattedPercentage;
     }
 
     // Read
@@ -314,10 +313,39 @@ public class WorldService {
         countryRepository.saveAndFlush(country);
     }
 
+
+    @Transactional
+    public List<CityEntity> getCitiesByCountryCode(String countryCode) {
+        logger.info("Entered getCitiesByCountryCode method");
+        return cityRepository.findAll().stream()
+                .filter(city -> city.getCountryCode().getCode().equals(countryCode))
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void deleteCity(Integer id) {
+        logger.info("Entered deleteCity method");
+        Optional<CityEntity> cityOptional = cityRepository.findById(id);
+
+        if (cityOptional.isPresent()) {
+            cityRepository.delete(cityOptional.get());
+        } else {
+            logger.info("Encountered error: city not found");
+            throw new RuntimeException("City with id " + id + " not found");
+        }
+    }
+
     // Delete
     @Transactional
     public void deleteCountry(CountryEntity country) {
         logger.info("Entered deleteCountry method");
+
+        List<CityEntity> cities = getCitiesByCountryCode(country.getCode());
+
+        for (CityEntity city : cities) {
+            deleteCity(city.getId());
+        }
+
         countryRepository.delete(country);
     }
 
