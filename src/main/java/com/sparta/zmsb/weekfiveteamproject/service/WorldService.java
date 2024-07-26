@@ -137,23 +137,20 @@ public class WorldService {
     }
 
     // Requirement
-    public int amountOfPeopleSpeakingOfficialLanguage(String countryName) {
-        logger.info("Entered amountOfPeopleSpeakingOfficialLanguage method");
+    public int amountOfPeopleSpeakingOfficialLanguage(String countryCode) {
+        logger.info("Entered amountOfPeopleSpeakingOfficialLanguage method with countryCode: " + countryCode);
         List<CountryEntity> countries = allCountries();
 
-        String countryCode = countries.stream()
-                .filter(cE -> cE.getName().equals(countryName))
-                .map(CountryEntity::getCode)
-                .findFirst()
-                .orElse("Name not found");
+        boolean countryExists = countries.stream()
+                .anyMatch(cE -> cE.getCode().equalsIgnoreCase(countryCode));
 
-        if ("Name not found".equals(countryCode)) {
-            logger.info("Encountered error: country code not found");
+        if (!countryExists) {
+            logger.info("Encountered error: country code not found for countryCode: " + countryCode);
             return 0;
         }
 
         int population = countries.stream()
-                .filter(cE -> cE.getCode().equals(countryCode))
+                .filter(cE -> cE.getCode().equalsIgnoreCase(countryCode))
                 .findFirst()
                 .map(CountryEntity::getPopulation)
                 .orElse(0);
@@ -164,7 +161,7 @@ public class WorldService {
         if (mostSpoken.isPresent()) {
             return (int) (population * mostSpoken.get().getPercentage().doubleValue() / 100);
         } else {
-            logger.info("Encountered error: language not found");
+            logger.info("Encountered error: language not found for countryCode: " + countryCode);
             return 0;
         }
     }

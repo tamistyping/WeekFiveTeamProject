@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Country</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .navbar {
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 10;
+        }
+        body {
+            padding-top: 56px;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="/auth/home">World Hopping MPO</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+                <a class="nav-link" href="/auth/countries">Back to List</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<div class="container mt-5">
+    <h1 class="mb-4">Edit Country</h1>
+
+    <!-- Display validation errors if there are any -->
+    <div th:if="${#fields.hasGlobalErrors()}" class="alert alert-danger">
+        <ul>
+            <li th:each="error : ${#fields.errors()}">
+                <span th:text="${error}"></span>
+            </li>
+        </ul>
+    </div>
+
+    <form th:action="@{/auth/countries/edit/{id}(id=${country.code})}" method="post" th:object="${country}">
+        <input type="hidden" name="_method" value="put" /> <!-- This is for PUT method emulation -->
+
+        <div class="form-group">
+            <label for="name">Country Name</label>
+            <input type="text" id="name" name="name" class="form-control" th:value="${country.name}" required />
+        </div>
+
+        <div class="form-group">
+            <label for="continent">Continent</label>
+            <input type="text" id="continent" name="continent" class="form-control" th:value="${country.continent}" required />
+        </div>
+
+        <div class="form-group">
+            <label for="region">Region</label>
+            <input type="text" id="region" name="region" class="form-control" th:value="${country.region}" required />
+        </div>
+
+        <div class="form-group">
+            <label for="surfaceArea">Surface Area</label>
+            <input type="number" id="surfaceArea" name="surfaceArea" class="form-control" step="0.01" th:value="${country.surfaceArea}" required />
+        </div>
+
+        <div class="form-group">
+            <label for="indepYear">Independence Year</label>
+            <input type="number" id="indepYear" name="indepYear" class="form-control" th:value="${country.indepYear}" />
+        </div>
+
+        <div class="form-group">
+            <label for="population">Population</label>
+            <input type="number" id="population" name="population" class="form-control" th:value="${country.population}" required />
+        </div>
+
+        <div class="form-group">
+            <label for="lifeExpectancy">Life Expectancy</label>
+            <input type="number" id="lifeExpectancy" name="lifeExpectancy" class="form-control" step="0.1" th:value="${country.lifeExpectancy}" />
+        </div>
+
+        <div class="form-group">
+            <label for="localName">Local Name</label>
+            <input type="text" id="localName" name="localName" class="form-control" th:value="${country.localName}" required />
+        </div>
+
+        <div class="form-group">
+            <label for="governmentForm">Government Form</label>
+            <input type="text" id="governmentForm" name="governmentForm" class="form-control" th:value="${country.governmentForm}" required />
+        </div>
+
+        <div class="form-group">
+            <label for="headOfState">Head of State</label>
+            <input type="text" id="headOfState" name="headOfState" class="form-control" th:value="${country.headOfState}" />
+        </div>
+
+        <div class="form-group">
+            <label for="capital">Capital</label>
+            <input type="number" id="capital" name="capital" class="form-control" th:value="${country.capital}" />
+        </div>
+
+        <div class="form-group">
+            <label for="code2">Secondary Code</label>
+            <input type="text" id="code2" name="code2" class="form-control" th:value="${country.code2}" required />
+        </div>
+
+        <button type="submit" class="btn btn-primary">Update Country</button>
+    </form>
+</div>
+</body>
+</html>

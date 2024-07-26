@@ -3,7 +3,6 @@ package com.sparta.zmsb.weekfiveteamproject.controllers;
 import com.sparta.zmsb.weekfiveteamproject.entities.CountryEntity;
 import com.sparta.zmsb.weekfiveteamproject.service.WorldService;
 
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
 import org.springframework.validation.BindingResult;
@@ -15,7 +14,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 
 @Controller
@@ -45,18 +43,27 @@ public class CountryController {
     @GetMapping("/details/{id}")
     public String viewCountryDetails(@PathVariable String id, Model model) {
         if (id.length() != 3) {
-            return "redirect:auth/countries?error=invalid_id";
+            return "redirect:/auth/countries?error=invalid_id";
         }
 
         CountryEntity country = worldService.getCountry(id);
 
         if (country == null) {
-            return "redirect:auth/countries?error=not_found";
+            return "redirect:/auth/countries?error=not_found";
         }
 
+        int speakingPopulation = worldService.amountOfPeopleSpeakingOfficialLanguage(id);
+        int totalPopulation = country.getPopulation();
+
+        double percentageSpeaking = totalPopulation > 0 ? (speakingPopulation * 100.0) / totalPopulation : 0;
+
         model.addAttribute("country", country);
+        model.addAttribute("speakingPopulation", speakingPopulation);
+        model.addAttribute("percentageSpeaking", percentageSpeaking);
+
         return "auth/countries/detail";
     }
+
 
     @GetMapping("/no-head-of-state")
     public String getCountriesWithNoHeadOfState(Model model) {
@@ -105,26 +112,11 @@ public class CountryController {
         return "redirect:/auth/countries";
     }
 
-    @GetMapping("/edit/{id}")
-    public String editCountryForm(@PathVariable String id, Model model) {
-        if (id.length() != 3) {
-            return "redirect:/auth/countries?error=invalid_id";
-        }
-
-        CountryEntity country = worldService.getCountry(id);
-
-        if (country == null) {
-            return "redirect:/auth/countries?error=not_found";
-        }
-
-        model.addAttribute("country", country);
-        return "countries/edit";
-    }
-
     @PostMapping("/edit/{id}")
-    public String updateCountry(@PathVariable String id, @ModelAttribute @Valid CountryEntity country, RedirectAttributes redirectAttributes) {
-        if (id.length() != 3) {
-            return "redirect:/auth/countries?error=invalid_id";
+    public String updateCountry(@PathVariable String id, @ModelAttribute @Valid CountryEntity country,
+                                BindingResult bindingResult, RedirectAttributes redirectAttributes) {
+        if (bindingResult.hasErrors()) {
+            return "auth/countries/edit";
         }
 
         CountryEntity existingCountry = worldService.getCountry(id);
@@ -138,7 +130,7 @@ public class CountryController {
             return "redirect:/auth/countries/edit/" + id;
         }
 
-        worldService.updateCountry(country);
+        worldService.updateCountry(country); // Update the country
         redirectAttributes.addFlashAttribute("success", "Country updated successfully");
         return "redirect:/auth/countries";
     }
@@ -175,6 +167,7 @@ public class CountryController {
         redirectAttributes.addFlashAttribute("success", "Country deleted successfully");
         return "redirect:/auth/countries";
     }
+
 }
 
 
