@@ -1,11 +1,13 @@
 package com.sparta.zmsb.weekfiveteamproject.controllers;
 
+import com.sparta.zmsb.weekfiveteamproject.entities.CityEntity;
 import com.sparta.zmsb.weekfiveteamproject.entities.CountryEntity;
+import com.sparta.zmsb.weekfiveteamproject.repositories.CityRepository;
 import com.sparta.zmsb.weekfiveteamproject.service.WorldService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import jakarta.servlet.http.HttpServletRequest;
+
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
+
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
@@ -13,156 +15,175 @@ import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
 
-import java.net.URI;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.Errors;
+
+import org.springframework.web.bind.annotation.*;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
-@RestController
-@RequestMapping("/api/countries")
+@Controller
+@RequestMapping("auth/countries")
 public class CountryController {
 
-//    private final WorldService worldService;
-//
-//    public CountryController(final WorldService worldService) {
-//        this.worldService = worldService;
-//    }
-//
-//    @GetMapping("/search")
-//    public ResponseEntity<CollectionModel<EntityModel<CountryEntity>>> getAllCountries() {
-//        List<EntityModel<CountryEntity>> countries = worldService.allCountries()
-//                .stream().map(
-//                        this::getCountryEntityModel)
-//                .toList();
-//        return new ResponseEntity<>(CollectionModel.of(countries,
-//                WebMvcLinkBuilder.linkTo(methodOn(CountryController.class).getAllCountries()).withSelfRel()), HttpStatus.OK);
-//    }
-//    @GetMapping("/search/{columnName}/{value}")
-//    public ResponseEntity<CollectionModel<EntityModel<CountryEntity>>> getCountriesByValue(@PathVariable("columnName") String columnName, @PathVariable("value") String value) {
-//        List<CountryEntity> countries = worldService.getCountriesByValue(columnName, value);
-//        if(countries == null) {
-//            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-//        }
-//        if(countries.isEmpty()) {
-//            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-//        }
-//        List<EntityModel<CountryEntity>> response = countries.stream().map(this::getCountryEntityModel).toList();
-//        return new ResponseEntity<>(CollectionModel.of(response, WebMvcLinkBuilder.linkTo(methodOn(CountryController.class).getCountriesByValue(columnName,value)).withSelfRel()),HttpStatus.OK );
-//    }
-//
-//    @GetMapping("/search/code/{id}")
-//    public ResponseEntity<EntityModel<CountryEntity>> getCountry(@PathVariable final String id) {
-//        if(id.length()!=3){
-//            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-//        }
-//        CountryEntity c = worldService.getCountry(id);
-//        if(c==null){
-//            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-//        }
-//        EntityModel<CountryEntity> country = EntityModel.of(
-//                worldService.getCountry(id),
-//                WebMvcLinkBuilder.linkTo(methodOn(CountryController.class).getCountry(id)).withSelfRel(),
-//                WebMvcLinkBuilder.linkTo(methodOn(CountryController.class).getAllCountries()).withRel("All countries"));
-//        return new ResponseEntity<>(country.add(citiesLinks(country.getContent())).add(languagesLinks(country.getContent())), HttpStatus.OK);
-//
-//    }
-//
-//    @GetMapping("/search/by-language/{language}")
-//    public ResponseEntity<CollectionModel<EntityModel<CountryEntity>>> getCountriesByLanguage(@PathVariable final String language) {
-//        if(worldService.getAllLanguages().contains(language)){
-//            List<EntityModel<CountryEntity>> countries = worldService.getAllCountriesByLanguage(language)
-//                    .stream().map(this::getCountryEntityModel).toList();
-//            return new ResponseEntity<>(CollectionModel.of(countries,WebMvcLinkBuilder.linkTo(methodOn(CountryController.class).getCountriesByLanguage(language)).withSelfRel()), HttpStatus.OK);
-//        }
-//        else{
-//            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-//        }
-//    }
-//
-//    @GetMapping("/search/with-no-head-of-state")
-//    public ResponseEntity<CollectionModel<EntityModel<CountryEntity>>> getCountriesWithNoHeadOfStates() {
-//        List<EntityModel<CountryEntity>> countries = worldService.countriesWithNoHeadOfState().stream()
-//                .map(this::getCountryEntityModel).toList();
-//        return new ResponseEntity<>(CollectionModel.of(countries,WebMvcLinkBuilder.linkTo(methodOn(CountryController.class).getCountriesWithNoHeadOfStates()).withSelfRel()), HttpStatus.OK);
-//    }
-//
-//    @GetMapping("/search/with-most-cities")
-//    public ResponseEntity<EntityModel<CountryEntity>> getCountryWithMostCities() {
-//        EntityModel<CountryEntity> country = EntityModel.of
-//                (worldService.getCountry(worldService
-//                        .getCountryCode(worldService.whichCountryHasMostCities()
-//                                , worldService.allCountries())));
-//        return new ResponseEntity<>(country.add(citiesLinks(country.getContent())), HttpStatus.OK);
-//    }
-//
-//    @Operation
-//    @PostMapping("/secure/new")
-//    public ResponseEntity<EntityModel<CountryEntity>> createCountry(@Parameter(name = "x-api-key", description = "header", required = true) @RequestHeader("x-api-key") String apiKey, @RequestBody @Valid CountryEntity country, HttpServletRequest request) {
-//
-//        Optional<CountryEntity> checkCode = worldService.allCountries().stream().filter(c-> c.getCode().equals(country.getCode())).toList().stream().findFirst();
-//        if(checkCode.isPresent()){
-//            return new ResponseEntity<>(/* Exception here explaining code is the same as  */ HttpStatus.CONFLICT);
-//        }
-//        worldService.createNewCountry(country);
-//        URI location = URI.create(request.getRequestURL().toString() + "/" + country.getCode());
-//        Link selfLink = WebMvcLinkBuilder.linkTo(methodOn(CountryController.class).getCountry(country.getCode())).withSelfRel();
-//        return ResponseEntity.created(location).body(EntityModel.of(country).add(selfLink));
-//    }
-//
-//    @PutMapping("/secure/update/{id}") //No HATEOAS as no content return
-//    public ResponseEntity<EntityModel<CountryEntity>> updateCountry(@Parameter(name = "x-api-key", description = "header", required = true) @RequestHeader("x-api-key") String apiKey,@RequestBody @Valid CountryEntity country, @PathVariable final String id) {
-//
-//        if(id.length()!=3){
-//            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-//        }
-//        CountryEntity correspondingCountry = worldService.getCountry(id);
-//        if(correspondingCountry == null) {
-//            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-//        }
-//        if(!Objects.equals(id, country.getCode())){
-//            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-//        }
-//        worldService.updateCountry(country);
-//        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-//    }
-//
-//    @DeleteMapping("/secure/delete/{id}") //No HATEOAS as no content return
-//    public ResponseEntity<CountryEntity> deleteCountry(@Parameter(name = "x-api-key", description = "header", required = true) @RequestHeader("x-api-key") String apiKey, @PathVariable final String id) {
-//        if(id.length()!=3){
-//            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-//        }
-//        CountryEntity country = worldService.getCountry(id);
-//        if(country == null) {
-//            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-//        }
-//        else {
-//            worldService.deleteCountry(country);
-//            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-//        }
-//    }
-//
-//    private List<Link> citiesLinks(CountryEntity country){
-//        return worldService.allCities().stream().filter(cities -> cities.getCountryCode().getCode().equals(country.getCode())).toList()
-//                .stream().map(
-//                        city -> WebMvcLinkBuilder.linkTo(
-//                                methodOn(CityController.class).getCity(city.getId(), null)).withRel(city.getName())).toList();
-//    }
-//    private List<Link> languagesLinks(CountryEntity country){
-//        return worldService.allLanguages().stream().filter(lang -> lang.getCountryCode().getCode().equals(country.getCode())).toList()
-//                .stream().map(
-//                        lang -> WebMvcLinkBuilder.linkTo(
-//                                methodOn(CountryLanguageController.class).getLanguageByCountryCode(lang.getCountryCode().getCode())).withRel(lang.getId().getLanguage())).toList();
-//    }
-//    private EntityModel<CountryEntity> getCountryEntityModel(CountryEntity country) {
-//        List<Link> citiesLinks = citiesLinks(country);
-//        List<Link> languagesLinks = languagesLinks(country);
-//        Link selfLink = WebMvcLinkBuilder.linkTo(methodOn(CountryController.class).getCountry(country.getCode())).withSelfRel();
-//        Link relink = WebMvcLinkBuilder.linkTo(methodOn(CountryController.class).getAllCountries()).withRel("All countries");
-//        return EntityModel.of(country, selfLink, relink).add(citiesLinks).add(languagesLinks);
-//    }
+    private final WorldService worldService;
+
+
+    public CountryController(final WorldService worldService, CityRepository cityRepository) {
+        this.worldService = worldService;
+    }
+
+    @GetMapping
+    public String getAllCountries(Model model) {
+        List<CountryEntity> allCountries = worldService.allCountries();
+        model.addAttribute("countries", allCountries);
+        return "auth/countries/list";
+    }
+
+    @GetMapping("/most-cities")
+    public String getCountriesWithMostCities(Model model) {
+        List<CountryEntity> countriesWithMostCities = worldService.countriesWithMostCities();
+        model.addAttribute("countries", countriesWithMostCities);
+        return "auth/countries/list";
+    }
+
+    @GetMapping("/details/{id}")
+    public String viewCountryDetails(@PathVariable String id, Model model) {
+        if (id.length() != 3) {
+            return "redirect:/auth/countries?error=invalid_id";
+        }
+
+        CountryEntity country = worldService.getCountry(id);
+
+        if (country == null) {
+            return "redirect:/auth/countries?error=not_found";
+        }
+
+        int speakingPopulation = worldService.amountOfPeopleSpeakingOfficialLanguage(id);
+        int totalPopulation = country.getPopulation();
+        double percentageSpeaking = totalPopulation > 0 ? (speakingPopulation * 100.0) / totalPopulation : 0;
+
+        String percentageInLargestCity = worldService.percentageOfGivenCountriesPopulationThatLivesInTheLargestCity(country.getName());
+
+        System.out.println("Percentage in Largest City: " + percentageInLargestCity);
+
+        model.addAttribute("country", country);
+        model.addAttribute("speakingPopulation", speakingPopulation);
+        model.addAttribute("percentageSpeaking", percentageSpeaking);
+        model.addAttribute("percentageInLargestCity", percentageInLargestCity);
+
+        return "auth/countries/detail";
+    }
+
+
+    @GetMapping("/no-head-of-state")
+    public String getCountriesWithNoHeadOfState(Model model) {
+        List<CountryEntity> countriesWithoutHeadOfState = worldService.countriesWithNoHeadOfState();
+        model.addAttribute("countries", countriesWithoutHeadOfState);
+        return "auth/countries/list";
+    }
+
+    @GetMapping("/search")
+    public String searchCountryById(@RequestParam("id") String id, Model model) {
+        if (id.length() != 3) {
+            model.addAttribute("error", "Invalid country ID. It should be 3 characters long.");
+            return "auth/countries/list";
+        }
+
+        CountryEntity country = worldService.getCountry(id);
+
+        if (country == null) {
+            model.addAttribute("error", "Country not found.");
+            return "auth/countries/list";
+        }
+
+        model.addAttribute("countries", List.of(country));
+        return "auth/countries/list";
+    }
+
+    @GetMapping("/new")
+    public String createCountryForm(Model model) {
+        model.addAttribute("country", new CountryEntity());
+        return "auth/countries/new";
+    }
+
+    @PostMapping("/new")
+    public String createCountry(@Valid @ModelAttribute("country") CountryEntity country, Errors errors) {
+        if (errors.hasErrors()) {
+            return "auth/countries/new";
+        }
+
+        try {
+            worldService.createNewCountry(country);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "redirect:/auth/countries/new?error=true";
+        }
+
+        return "redirect:/auth/countries";
+    }
+
+    @GetMapping("/edit/{code}")
+    public String editCountryForm(@PathVariable("code") String code, Model model) {
+        CountryEntity country = worldService.getCountry(code);
+        model.addAttribute("country", country);
+        return "auth/countries/edit";
+    }
+
+    @PostMapping("/edit/{code}")
+    public String editCountry(@PathVariable("code") String code, @ModelAttribute CountryEntity country, BindingResult result) {
+        if (result.hasErrors()) {
+            return "auth/countries/edit";
+        }
+        worldService.updateCountry(country);
+        return "redirect:/auth/countries";
+    }
+
+
+    @GetMapping("/delete/{id}")
+    public String deleteCountryForm(@PathVariable String id, Model model) {
+        if (id.length() != 3) {
+            return "redirect:/auth/countries?error=invalid_id";
+        }
+
+        CountryEntity country = worldService.getCountry(id);
+
+        if (country == null) {
+            return "redirect:/auth/countries?error=not_found";
+        }
+
+        model.addAttribute("country", country);
+        return "redirect:/auth/countries";
+    }
+
+    @PostMapping("/delete/{id}")
+    public String deleteCountry(@PathVariable String id, RedirectAttributes redirectAttributes) {
+        try {
+            CountryEntity country = worldService.getCountry(id);
+            if (country != null) {
+                worldService.deleteCountry(country);
+                redirectAttributes.addFlashAttribute("success", "Country deleted successfully");
+            } else {
+                redirectAttributes.addFlashAttribute("error", "Country not found");
+            }
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Error occurred while deleting country: " + e.getMessage());
+        }
+
+        return "redirect:/auth/countries";
+    }
+
 
 }
+
+
+
+
+

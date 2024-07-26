@@ -91,6 +91,9 @@ public class CityController {
         return "redirect:/api/cities/create?";
     }
 
+
+//    }
+//
 //    @GetMapping("/search")
 //    public CollectionModel<EntityModel<CityEntity>> getAllCities() {
 //        List<EntityModel<CityEntity>> cities = worldService.allCities().stream().map(city -> {
@@ -118,6 +121,9 @@ public class CityController {
 //        return "city_templates/cities";
 //    }
 
+//        return CollectionModel.of(cities, WebMvcLinkBuilder.linkTo(methodOn(CityController.class).getAllCities()).withSelfRel());
+//    }
+//
 //    @GetMapping("/search/{id}")
 //    public CollectionModel<EntityModel<CityEntity>> getCity(@PathVariable @Valid Integer id) {
 //
@@ -184,6 +190,18 @@ public class CityController {
         model.addAttribute("create", false);
         return "city_templates/cities";
     }
+  
+//    @GetMapping("/districts-with-lowest-population")
+//    public String getDistrictsWithLowestPopulation() {
+////        List<EntityModel<CityEntity>> cities = worldService.allCities().stream().map(city -> {
+////            List<Link> countryLinks = Stream.of(city.getCountryCode().getCode()).map(code -> WebMvcLinkBuilder.linkTo(methodOn(CountryController.class).getCountry(city.getCountryCode().getCode())).withRel(city.getCountryCode().getName())).toList();
+////            Link selfLink = WebMvcLinkBuilder.linkTo(methodOn(CityController.class).getCity(city.getId())).withSelfRel();
+////            Link relLink = WebMvcLinkBuilder.linkTo(methodOn(CityController.class).getAllCities()).withRel("city");
+////            return EntityModel.of(city, selfLink, relLink).add(countryLinks);
+////        }).toList();
+////        return CollectionModel.of(cities, WebMvcLinkBuilder.linkTo(methodOn(CityController.class).getAllCities()).withSelfRel());
+//        return worldService.getSmallestDistrictsByPopulation();
+//    }
 //
 //    @PutMapping("/secure/update/{id}")
 //    public ResponseEntity<EntityModel<CityEntity>> updateCity(@Parameter(name = "x-api-key", description = "header", required = true) @RequestHeader("x-api-key") String apiKey, @PathVariable @Valid Integer id, @RequestBody @Valid CityEntity cityEntity) {
@@ -210,6 +228,7 @@ public class CityController {
 //        }
 //    }
 
+//
 //    @DeleteMapping("/secure/delete/{id}")
 //    public ResponseEntity<CollectionModel<EntityModel<CityEntity>>> deleteCity(@Parameter(name = "x-api-key", description = "header", required = true) @RequestHeader("x-api-key") String apiKey, @PathVariable @Valid Integer id) {
 //        CityEntity city = worldService.getCityById(id);
@@ -221,6 +240,7 @@ public class CityController {
 //
 //        return ResponseEntity.noContent().build();
 //    }
+
 
     @GetMapping("/update/{id}")
     public String updateCity(@PathVariable Integer id, Model model) {

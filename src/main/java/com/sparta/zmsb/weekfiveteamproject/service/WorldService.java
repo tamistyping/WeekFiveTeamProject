@@ -15,6 +15,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
 
 
+import java.text.DecimalFormat;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -37,20 +38,6 @@ public class WorldService {
         this.countryLanguageRepository = countryLanguageRepository;
     }
 
-    // Delete
-    @Transactional
-    public void deleteCity(Integer id) {
-        logger.info("Entered deleteCity method");
-        Optional<CityEntity> cityOptional = cityRepository.findById(id);
-
-        if (cityOptional.isPresent()) {
-            cityRepository.delete(cityOptional.get());
-        } else {
-            logger.info("Encountered error: city not found");
-            throw new RuntimeException("City with id " + id + " not found");
-        }
-    }
-
     // Requirement
     public List<CountryEntity> countriesWithNoHeadOfState() {
         logger.info("Entered getCountriesWithNoHeadOfState method");
@@ -61,30 +48,53 @@ public class WorldService {
 
     // Requirement
     @Transactional
-    public String whichCountryHasMostCities() {
-        logger.info("Entered whichCountryHasMostCities method");
+    public List<CountryEntity> countriesWithMostCities() {
+        logger.info("Entered countriesWithMostCities method");
+
         List<CityEntity> cities = allCities();
         Map<String, Long> mostCitiesCount = cities.stream()
                 .collect(Collectors.groupingBy(
-                        c -> c.getCountryCode().getName()
-                        , Collectors.counting()));
+                        c -> c.getCountryCode().getName(),
+                        Collectors.counting()
+                ));
 
-        return mostCitiesCount.entrySet().stream()
-                .max(Map.Entry.comparingByValue())
-                .map(Map.Entry::getKey).orElse("");
+        long maxCityCount = mostCitiesCount.values().stream()
+                .max(Long::compare)
+                .orElse(0L);
+
+        List<String> countriesWithMaxCities = mostCitiesCount.entrySet().stream()
+                .filter(entry -> entry.getValue() == maxCityCount)
+                .map(Map.Entry::getKey)
+                .toList();
+
+        return countryRepository.findAll().stream()
+                .filter(country -> countriesWithMaxCities.contains(country.getName()))
+                .collect(Collectors.toList());
     }
 
-    // Requirement
     @Transactional
-    public double percentageOfGivenCountriesPopulationThatLivesInTheLargestCity(String countryName) {
+    public String percentageOfGivenCountriesPopulationThatLivesInTheLargestCity(String countryName) {
         logger.info("Entered percentageOfGivenCountriesPopulationThatLivesInTheLargestCity method");
+
         List<CityEntity> cities = allCities();
         List<CountryEntity> countries = allCountries();
 
         String countryCode = getCountryCode(countryName, countries);
         int countryTotalPopulation = getCountryTotalPopulation(countries, countryCode);
         int biggestCityPopulation = getBiggestCityPopulation(cities, countryCode);
-        return (double) biggestCityPopulation / countryTotalPopulation * 100;
+
+        double percentage = (double) biggestCityPopulation / countryTotalPopulation * 100;
+
+        // Format percentage to 1 decimal place
+        DecimalFormat df = new DecimalFormat("#.0");
+        String formattedPercentage = df.format(percentage);
+
+        logger.info("Country Code: " + countryCode);
+        logger.info("Country Total Population: " + countryTotalPopulation);
+        logger.info("Biggest City Population: " + biggestCityPopulation);
+        logger.info("Formatted Percentage in Largest City: " + formattedPercentage);
+
+        return formattedPercentage;
     }
 
     // Read
@@ -126,23 +136,20 @@ public class WorldService {
     }
 
     // Requirement
-    public int amountOfPeopleSpeakingOfficialLanguage(String countryName) {
-        logger.info("Entered amountOfPeopleSpeakingOfficialLanguage method");
+    public int amountOfPeopleSpeakingOfficialLanguage(String countryCode) {
+        logger.info("Entered amountOfPeopleSpeakingOfficialLanguage method with countryCode: " + countryCode);
         List<CountryEntity> countries = allCountries();
 
-        String countryCode = countries.stream()
-                .filter(cE -> cE.getName().equals(countryName))
-                .map(CountryEntity::getCode)
-                .findFirst()
-                .orElse("Name not found");
+        boolean countryExists = countries.stream()
+                .anyMatch(cE -> cE.getCode().equalsIgnoreCase(countryCode));
 
-        if ("Name not found".equals(countryCode)) {
-            logger.info("Encountered error: country code not found");
+        if (!countryExists) {
+            logger.info("Encountered error: country code not found for countryCode: " + countryCode);
             return 0;
         }
 
         int population = countries.stream()
-                .filter(cE -> cE.getCode().equals(countryCode))
+                .filter(cE -> cE.getCode().equalsIgnoreCase(countryCode))
                 .findFirst()
                 .map(CountryEntity::getPopulation)
                 .orElse(0);
@@ -153,7 +160,7 @@ public class WorldService {
         if (mostSpoken.isPresent()) {
             return (int) (population * mostSpoken.get().getPercentage().doubleValue() / 100);
         } else {
-            logger.info("Encountered error: language not found");
+            logger.info("Encountered error: language not found for countryCode: " + countryCode);
             return 0;
         }
     }
@@ -306,10 +313,39 @@ public class WorldService {
         countryRepository.saveAndFlush(country);
     }
 
+
+    @Transactional
+    public List<CityEntity> getCitiesByCountryCode(String countryCode) {
+        logger.info("Entered getCitiesByCountryCode method");
+        return cityRepository.findAll().stream()
+                .filter(city -> city.getCountryCode().getCode().equals(countryCode))
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void deleteCity(Integer id) {
+        logger.info("Entered deleteCity method");
+        Optional<CityEntity> cityOptional = cityRepository.findById(id);
+
+        if (cityOptional.isPresent()) {
+            cityRepository.delete(cityOptional.get());
+        } else {
+            logger.info("Encountered error: city not found");
+            throw new RuntimeException("City with id " + id + " not found");
+        }
+    }
+
     // Delete
     @Transactional
     public void deleteCountry(CountryEntity country) {
         logger.info("Entered deleteCountry method");
+
+        List<CityEntity> cities = getCitiesByCountryCode(country.getCode());
+
+        for (CityEntity city : cities) {
+            deleteCity(city.getId());
+        }
+
         countryRepository.delete(country);
     }
 
@@ -321,6 +357,7 @@ public class WorldService {
         return allCountries.stream().filter(ce->ce.getCode().equals(countryCode)).findFirst().orElse(null);
     }
 
+    @Transactional
     public List<CountryEntity> getCountriesByValue(String columnName, String value) {
         logger.info("Entered getCountriesByValue method");
         List<CountryEntity> allCountries = countryRepository.findAll();
@@ -337,10 +374,33 @@ public class WorldService {
             case "local-name" -> allCountries.stream().filter(ce -> ce.getLocalName().toLowerCase().contains(value)).toList();
             case "government-form" -> allCountries.stream().filter(ce -> ce.getGovernmentForm().toLowerCase().contains(value)).toList();
             case "head-of-state" -> allCountries.stream().filter(ce -> ce.getHeadOfState().toLowerCase().contains(value)).toList();
-            case "capital" -> allCountries.stream().filter(ce -> !cityRepository.findById(ce.getCapital()).stream().filter(city -> city.getName().contains(value)).toList().isEmpty()).toList();
+            case "capital" -> allCountries.stream().filter(ce -> findCountryCapitalName(ce.getCode()).toLowerCase().contains(value)).toList();
             case "code2" -> allCountries.stream().filter(ce -> ce.getCode2().toLowerCase().contains(value)).toList();
             default -> null;
         };
+    }
+
+    //put in partial capital name, return all countries with capital that matches partial name
+
+    @Transactional
+    public String findCountryCapitalName(String countryCode){
+        logger.info("Entered findCountryCapitalName method");
+        CountryEntity countryEntity = getCountry(countryCode);
+        List<CityEntity> cities = cityRepository.findAll();
+        if(countryEntity==null){
+            return "";
+        }
+        else if(countryEntity.getCapital() == null){
+            return "";
+        }
+        else {
+            for (CityEntity cityEntity : cities) {
+                if(cityEntity.getId().equals(countryEntity.getCapital())){
+                    return cityEntity.getName();
+                }
+            }
+        }
+        return "";
     }
 
     // Update
@@ -359,7 +419,12 @@ public class WorldService {
         Set<String> uniqueLanguages = new HashSet<>();
         List<CountrylanguageEntity> languages = countryLanguageRepository.findAll();
         for(CountrylanguageEntity language : languages){
-            uniqueLanguages.add(language.getId().getLanguage());
+            if(language.getId().getLanguage().matches("[a-zA-Z]+")) {
+                uniqueLanguages.add(language.getId().getLanguage());
+            }
+            else {
+                uniqueLanguages.add(language.getId().getLanguage().replaceAll("[\\[\\]]+", ""));
+            }
         }
         return uniqueLanguages.stream().sorted().toList();
         //might need to change this needs testing

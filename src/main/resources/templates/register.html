@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - World Database Query</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .world-image {
+            background-image: url('/images/Earth.jpg');
+            background-size: cover;
+            background-position: center;
+            height: calc(100vh - 56px);
+        }
+    </style>
+</head>
+<body class="world-image">
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="index">World Hopping MPO</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+                <a class="nav-link" href="login">Login</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="register">Register</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+            <div class="card">
+                <div class="card-header text-center">
+                    <h3>Register</h3>
+                </div>
+                <div class="card-body">
+                    <form method ="post" th:object="${user}" th:action="@{/register}">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                        <input type ="hidden" th:name="*{roles}" th:value="USER"/>
+                        <div class="form-group">
+                            <label for="registerName">Username:</label>
+                            <input type="text" class="form-control" th:field="*{username}" id="registerName" placeholder="Enter name">
+                        </div>
+                        <div th:if="${nameerror}" style="color: red;">
+                            <p th:text="${nameerror}"></p>
+                        </div>
+                        <span th:if="${#fields.hasErrors('username')}" th:errors="*{username}" style="color: red"></span>
+                        <div class="form-group">
+                            <label for="registerEmail">Email address:</label>
+                            <input type="email" class="form-control" th:field="*{email}" id="registerEmail" placeholder="Enter email">
+                        </div>
+                        <div th:if="${emailerror}" style="color: red;">
+                            <p th:text="${emailerror}"></p>
+                        </div>
+                        <span th:if="${#fields.hasErrors('email')}" th:errors="*{email}" style="color: red"></span>
+                        <div class="form-group">
+                            <label for="registerPassword">Password:</label>
+                            <input type="password" class="form-control" th:field="*{password}" id="registerPassword" placeholder="Enter password">
+                        </div>
+                        <div th:if="${passworderror}" style="color: red;">
+                            <p th:text="${passworderror}"></p>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block">Register</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap JS and dependencies -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
