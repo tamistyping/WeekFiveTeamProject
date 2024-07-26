@@ -62,7 +62,7 @@
 <div class="container mt-5">
     <h1 class="text-center mb-4">Cities!</h1>
 
-    <form th:action="@{/api/cities/auth/search}" method="get" class="mb-4">
+    <form th:action="@{/auth/cities/search}" method="get" class="mb-4">
         <div class="input-group mb-3">
             <input type="text" class="form-control" placeholder="Enter city name" aria-label="City name" aria-describedby="button-addon2" name="cityName">
             <button class="btn btn-outline-secondary" type="submit" id="button-addon2">SEARCH</button>
@@ -70,10 +70,10 @@
     </form>
 
     <div class="d-flex mb-3">
-        <form sec:authorize="hasRole('ROLE_ADMIN')" th:if="${!searchPage}" th:action="@{/api/cities/auth/create}" method="get" class="mx-2">
+        <form sec:authorize="hasRole('ROLE_ADMIN')" th:if="${!searchPage}" th:action="@{/auth/cities/create}" method="get" class="mx-2">
             <button type="submit" class="btn btn-outline-dark btn-lg">Create</button>
         </form>
-        <form th:if="${!searchPage}" th:action="@{/api/cities/auth/districts-with-lowest-population}" method="get" class="mx-2">
+        <form th:if="${!searchPage}" th:action="@{/auth/cities/districts-with-lowest-population}" method="get" class="mx-2">
             <button type="submit" class="btn btn-outline-dark btn-lg">Smallest Districts</button>
         </form>
     </div>
@@ -115,10 +115,10 @@
         <div>
             <a th:if="${searchPage}" th:href="@{/api/cities/auth}" class="btn btn-outline-dark btn-lg mx-2">Back</a>
         </div>
-        <form sec:authorize="hasRole('ROLE_ADMIN')" th:if="${searchPage}" th:action="@{/api/cities/auth/update/{id}(id=${city.id})}" method="get" class="mx-2">
+        <form sec:authorize="hasRole('ROLE_ADMIN')" th:if="${searchPage}" th:action="@{/auth/cities/update/{id}(id=${city.id})}" method="get" class="mx-2">
             <button type="submit" class="btn btn-outline-dark btn-lg">Update City</button>
         </form>
-        <form sec:authorize="hasRole('ROLE_ADMIN')" th:if="${searchPage}" th:action="@{/api/cities/auth/delete/{cityId}(cityId=${city.getId()})}" method="post" class="ms-auto">
+        <form sec:authorize="hasRole('ROLE_ADMIN')" th:if="${searchPage}" th:action="@{/auth/cities/delete/{cityId}(cityId=${city.getId()})}" method="post" class="ms-auto">
             <button type="submit" class="btn btn-outline-danger btn-lg">Delete City</button>
         </form>
     </div>

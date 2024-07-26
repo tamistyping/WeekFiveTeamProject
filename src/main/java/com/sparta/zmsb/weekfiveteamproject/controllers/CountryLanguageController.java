@@ -15,7 +15,7 @@ import java.math.BigDecimal;
 import java.util.*;
 
 @Controller
-@RequestMapping("/api/languages/auth")
+@RequestMapping("/auth/languages")
 public class CountryLanguageController {
 
 
@@ -41,10 +41,10 @@ public class CountryLanguageController {
             if (language.getId().getCountryCode().equalsIgnoreCase(countryCode) && language.getId().getLanguage().equalsIgnoreCase(languageString)) {
                 redirectAttributes.addAttribute("countryCode", language.getId().getCountryCode());
                 redirectAttributes.addAttribute("language", language.getId().getLanguage());
-                return "redirect:/api/languages/auth/search/{countryCode}/{language}";
+                return "redirect:/auth/languages/search/{countryCode}/{language}";
             }
         }
-        return "redirect:/api/languages/auth";
+        return "redirect:/auth/languages";
     }
 
     @GetMapping("/search/{countryCode}/{language}")
@@ -94,7 +94,7 @@ public class CountryLanguageController {
 
         worldService.createCountryLanguageEntityEntry(countrylanguageEntity);
 
-        return "redirect:/api/languages/auth/create?";
+        return "redirect:/auth/languages/create?";
     }
 
     @GetMapping("/update/{countryCode}/{language}")
@@ -123,7 +123,7 @@ public class CountryLanguageController {
 
         worldService.updateCountryLanguageEntity(countrylanguageEntity);
 
-        return "redirect:/api/languages/auth/update/" + countryCode + "/" + language;
+        return "redirect:/auth/languages/update/" + countryCode + "/" + language;
     }
 
     @PostMapping("/delete/{countryCode}/{language}")
@@ -134,7 +134,7 @@ public class CountryLanguageController {
         }
 
         worldService.deleteCountryLanguageEntity(languages.getFirst());
-        return "redirect:/api/languages/auth";
+        return "redirect:/auth/languages";
     }
 
 }

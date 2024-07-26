@@ -13,7 +13,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.util.*;
 
 @Controller
-@RequestMapping("/api/cities/auth")
+@RequestMapping("/auth/cities")
 public class CityController {
   
     private final WorldService worldService;
@@ -46,7 +46,7 @@ public class CityController {
 
         worldService.createCity(cityEntity);
 
-        return "redirect:/api/cities/auth/create?";
+        return "redirect:/auth/cities/create?";
     }
 
     @GetMapping
@@ -64,10 +64,10 @@ public class CityController {
         for (CityEntity city : cities) {
             if (city.getName().equalsIgnoreCase(cityName)) {
                 redirectAttributes.addAttribute("id", city.getId());
-                return "redirect:/api/cities/auth/search/{id}";
+                return "redirect:/auth/cities/search/{id}";
             }
         }
-        return "redirect:/api/cities/auth";
+        return "redirect:/auth/cities";
     }
 
     @GetMapping("/search/{id}")
@@ -120,7 +120,7 @@ public class CityController {
         city.setPopulation(population);
 
         worldService.updateCity(city);
-        return "redirect:/api/cities/auth/update/" + id;
+        return "redirect:/auth/cities/update/" + id;
     }
 
     @PostMapping("/delete/{id}")
@@ -132,6 +132,6 @@ public class CityController {
 
         worldService.deleteCity(id);
 
-        return "redirect:/api/cities/auth";
+        return "redirect:/auth/cities";
     }
 }
