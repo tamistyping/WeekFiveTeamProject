@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Country</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .navbar {
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 10;
+        }
+        body {
+            padding-top: 56px;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="/auth/home">World Hopping MPO</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+                <a class="nav-link" href="/auth/countries">Back to List</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<div class="container mt-5">
+    <h1 class="mb-4">Edit Country</h1>
+
+    <div th:if="${#fields.hasGlobalErrors()}" class="alert alert-danger">
+        <ul>
+            <li th:each="error : ${#fields.globalErrors()}" th:text="${error}"></li>
+        </ul>
+    </div>
+
+    <form th:action="@{/auth/countries/edit/{code}(code=${country.code})}" method="post" th:object="${country}">
+        <input type="hidden" name="_method" value="post" />
+        <input type="hidden" name="code" th:value="${country.code}" />
+
+        <div class="form-group">
+            <label for="name">Country Name</label>
+            <input type="text" id="name" name="name" class="form-control" th:value="${country.name}" />
+            <div th:if="${#fields.hasErrors('name')}" class="invalid-feedback" th:errors="*{name}"></div>
+        </div>
+
+        <div class="form-group">
+            <label for="continent">Continent</label>
+            <input type="text" id="continent" name="continent" class="form-control" th:value="${country.continent}" />
+            <div th:if="${#fields.hasErrors('continent')}" class="invalid-feedback" th:errors="*{continent}"></div>
+        </div>
+
+        <div class="form-group">
+            <label for="region">Region</label>
+            <input type="text" id="region" name="region" class="form-control" th:value="${country.region}" />
+            <div th:if="${#fields.hasErrors('region')}" class="invalid-feedback" th:errors="*{region}"></div>
+        </div>
+
+        <div class="form-group">
+            <label for="surfaceArea">Surface Area</label>
+            <input type="number" id="surfaceArea" name="surfaceArea" class="form-control" step="0.01" th:value="${country.surfaceArea}" />
+            <div th:if="${#fields.hasErrors('surfaceArea')}" class="invalid-feedback" th:errors="*{surfaceArea}"></div>
+        </div>
+
+        <div class="form-group">
+            <label for="indepYear">Independence Year</label>
+            <input type="number" id="indepYear" name="indepYear" class="form-control" th:value="${country.indepYear}" />
+            <div th:if="${#fields.hasErrors('indepYear')}" class="invalid-feedback" th:errors="*{indepYear}"></div>
+        </div>
+
+        <div class="form-group">
+            <label for="population">Population</label>
+            <input type="number" id="population" name="population" class="form-control" th:value="${country.population}" />
+            <div th:if="${#fields.hasErrors('population')}" class="invalid-feedback" th:errors="*{population}"></div>
+        </div>
+
+        <div class="form-group">
+            <label for="lifeExpectancy">Life Expectancy</label>
+            <input type="number" id="lifeExpectancy" name="lifeExpectancy" class="form-control" step="0.1" th:value="${country.lifeExpectancy}" />
+            <div th:if="${#fields.hasErrors('lifeExpectancy')}" class="invalid-feedback" th:errors="*{lifeExpectancy}"></div>
+        </div>
+
+        <div class="form-group">
+            <label for="localName">Local Name</label>
+            <input type="text" id="localName" name="localName" class="form-control" th:value="${country.localName}" />
+            <div th:if="${#fields.hasErrors('localName')}" class="invalid-feedback" th:errors="*{localName}"></div>
+        </div>
+
+        <div class="form-group">
+            <label for="governmentForm">Government Form</label>
+            <input type="text" id="governmentForm" name="governmentForm" class="form-control" th:value="${country.governmentForm}" />
+            <div th:if="${#fields.hasErrors('governmentForm')}" class="invalid-feedback" th:errors="*{governmentForm}"></div>
+        </div>
+
+        <div class="form-group">
+            <label for="headOfState">Head of State</label>
+            <input type="text" id="headOfState" name="headOfState" class="form-control" th:value="${country.headOfState}" />
+            <div th:if="${#fields.hasErrors('headOfState')}" class="invalid-feedback" th:errors="*{headOfState}"></div>
+        </div>
+
+        <div class="form-group">
+            <label for="capital">Capital</label>
+            <input type="number" id="capital" name="capital" class="form-control" th:value="${country.capital}" />
+            <div th:if="${#fields.hasErrors('capital')}" class="invalid-feedback" th:errors="*{capital}"></div>
+        </div>
+
+        <div class="form-group">
+            <label for="code2">Code2</label>
+            <input type="text" id="code2" name="code2" class="form-control" th:value="${country.code2}" />
+            <div th:if="${#fields.hasErrors('code2')}" class="invalid-feedback" th:errors="*{code2}"></div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+    </form>
+</div>
+</body>
+</html>
