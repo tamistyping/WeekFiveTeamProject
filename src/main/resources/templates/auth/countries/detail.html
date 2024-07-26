@@ -101,7 +101,7 @@
                 <dd class="col-sm-9" th:text="${speakingPopulation}">0</dd>
 
                 <dt class="col-sm-3">Percentage of Population Speaking Official Language</dt>
-                <dd class="col-sm-9" th:text="${percentageSpeaking}">0%</dd>
+                <dd class="col-sm-9" th:text="${percentageSpeaking} + '%'">0%</dd>
 
                 <dt class="col-sm-3">Percentage of Population Living in Largest City</dt>
                 <dd class="col-sm-9" th:text="${percentageInLargestCity != null ? percentageInLargestCity + '%' : 'Data not available'}">0%</dd>
@@ -109,7 +109,8 @@
         </div>
         <div class="card-footer">
             <a href="/auth/countries" class="btn btn-primary">Back to List</a>
-            <a th:href="@{/auth/countries/edit/{id}(id=${country.code})}" class="btn btn-warning">Edit</a>
+            <a sec:authorize="hasRole('ROLE_ADMIN')" th:href="@{/auth/countries/edit/{id}(id=${country.code})}" class="btn btn-warning">Edit</a>
+
             <form th:action="@{/auth/countries/delete/{id}(id=${country.code})}" method="post" style="display:inline;">
                 <input type="hidden" name="_method" value="delete"/>
                 <button sec:authorize="hasRole('ROLE_ADMIN')" type="submit" class="btn btn-danger">Delete</button>

@@ -158,7 +158,10 @@ public class WorldService {
         Optional<CountrylanguageEntity> mostSpoken = mostSpokenLanguageInCountry(officialLanguages);
 
         if (mostSpoken.isPresent()) {
-            return (int) (population * mostSpoken.get().getPercentage().doubleValue() / 100);
+            double percentage = mostSpoken.get().getPercentage().doubleValue();
+            double peopleSpeaking = population * (percentage / 100.0);
+
+            return (int) Math.round(peopleSpeaking);
         } else {
             logger.info("Encountered error: language not found for countryCode: " + countryCode);
             return 0;
