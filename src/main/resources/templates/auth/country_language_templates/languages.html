@@ -62,7 +62,7 @@
 <div class="container mt-5">
     <h1 class="text-center mb-4">Languages!</h1>
 
-    <form th:action="@{/api/languages/auth/search}" method="get" class="mb-4">
+    <form th:action="@{/auth/languages/search}" method="get" class="mb-4">
         <div class="input-group mb-3">
             <input type="text" class="form-control" placeholder="Enter country code" aria-label="Country code" aria-describedby="button-addon2" name="countryCode">
             <input type="text" class="form-control" placeholder="Enter language" aria-label="Language name" aria-describedby="button-addon2" name="languageName">
@@ -71,7 +71,7 @@
     </form>
 
     <div sec:authorize="hasRole('ROLE_ADMIN')" class="d-flex mb-3">
-        <form th:if="${!searchPage}" th:action="@{/api/languages/auth/create}" method="get" class="mx-2">
+        <form th:if="${!searchPage}" th:action="@{/auth/languages/create}" method="get" class="mx-2">
             <button type="submit" class="btn btn-outline-dark btn-lg">Create</button>
         </form>
     </div>
@@ -99,12 +99,12 @@
 
     <div th:if="${searchPage}" th:each="language : ${languages}" class="d-flex mb-3">
         <div>
-            <a th:if="${searchPage}" th:href="@{/api/languages/auth}" class="btn btn-outline-dark btn-lg mx-2">Back</a>
+            <a th:if="${searchPage}" th:href="@{/auth/languages}" class="btn btn-outline-dark btn-lg mx-2">Back</a>
         </div>
-        <form sec:authorize="hasRole('ROLE_ADMIN')" th:if="${searchPage}" th:action="@{'/api/languages/auth/update/' + ${language.getId().getCountryCode()} + '/' + ${language.getId().getLanguage()}}" method="get" class="mx-2">
+        <form sec:authorize="hasRole('ROLE_ADMIN')" th:if="${searchPage}" th:action="@{'/auth/languages/update/' + ${language.getId().getCountryCode()} + '/' + ${language.getId().getLanguage()}}" method="get" class="mx-2">
             <button type="submit" class="btn btn-outline-dark btn-lg">Update Language</button>
         </form>
-        <form sec:authorize="hasRole('ROLE_ADMIN')" th:if="${searchPage}" th:action="@{/api/languages/auth/delete/{countryCode}/{language}(countryCode=${language.getId().getCountryCode()}, language=${language.getId().getLanguage()})}" method="post" class="ms-auto">
+        <form sec:authorize="hasRole('ROLE_ADMIN')" th:if="${searchPage}" th:action="@{/auth/languages/delete/{countryCode}/{language}(countryCode=${language.getId().getCountryCode()}, language=${language.getId().getLanguage()})}" method="post" class="ms-auto">
             <button type="submit" class="btn btn-outline-danger btn-lg">Delete Language</button>
         </form>
     </div>
