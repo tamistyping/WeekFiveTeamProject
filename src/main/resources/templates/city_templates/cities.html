@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>City Information</title>
@@ -17,7 +17,7 @@
     </form>
 
     <div class="d-flex mb-3">
-        <form th:if="${!searchPage}" th:action="@{/api/cities/create}" method="get" class="mx-2">
+        <form sec:authorize="hasRole('ROLE_ADMIN')" th:if="${!searchPage}" th:action="@{/api/cities/create}" method="get" class="mx-2">
             <button type="submit" class="btn btn-outline-dark btn-lg">Create</button>
         </form>
         <form th:if="${!searchPage}" th:action="@{/api/cities/districts-with-lowest-population}" method="get" class="mx-2">
@@ -62,10 +62,10 @@
         <div>
             <a th:if="${searchPage}" th:href="@{/api/cities}" class="btn btn-outline-dark btn-lg mx-2">Back</a>
         </div>
-        <form th:if="${searchPage}" th:action="@{/api/cities/update/{id}(id=${city.id})}" method="get" class="mx-2">
+        <form sec:authorize="hasRole('ROLE_ADMIN')" th:if="${searchPage}" th:action="@{/api/cities/update/{id}(id=${city.id})}" method="get" class="mx-2">
             <button type="submit" class="btn btn-outline-dark btn-lg">Update City</button>
         </form>
-        <form th:if="${searchPage}" th:action="@{/api/cities/delete/{cityId}(cityId=${city.getId()})}" method="post" class="ms-auto">
+        <form sec:authorize="hasRole('ROLE_ADMIN')" th:if="${searchPage}" th:action="@{/api/cities/delete/{cityId}(cityId=${city.getId()})}" method="post" class="ms-auto">
             <button type="submit" class="btn btn-outline-danger btn-lg">Delete City</button>
         </form>
     </div>

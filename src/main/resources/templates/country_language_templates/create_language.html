@@ -9,7 +9,7 @@
 <body>
 <div class="container mt-5">
     <h1 class="text-center mb-4">Language!</h1>
-    <form th:if="${update}" th:action="@{/api/Language/update/{countryCode}/{language}(countryCode=${language.getCountryCode().getCode()}, language=${language.getId().getLanguage()})}" method="post">
+    <form th:if="${update}" th:action="@{/api/languages/update/{countryCode}/{language}(countryCode=${language.getCountryCode().getCode()}, language=${language.getId().getLanguage()})}" method="post">
         <div class="table-responsive">
             <table class="table table-striped table-bordered">
                 <thead class="table-dark">
@@ -24,15 +24,15 @@
                 <tr>
                     <td><input type="text" class="form-control" id="countryCodeU" name="countryCode" th:value="${language.getId().getCountryCode()}" required></td>
                     <td><input type="text" class="form-control" id="languageU" name="language" th:value="${language.getId().getLanguage()}" required></td>
-                    <td><input type="text" class="form-control" id="officialtU" name="official" th:value="${language.getIsOfficial()}" required></td>
-                    <td><input type="number" class="form-control" id="percentageU" name="" th:value="${language.getPercentage()}" required></td>
+                    <td><input type="text" class="form-control" id="officialU" name="official" th:value="${language.getIsOfficial()}" required></td>
+                    <td><input type="number" class="form-control" id="percentageU" name="percentage" th:value="${language.getPercentage()}" required></td>
                 </tr>
                 </tbody>
             </table>
         </div>
         <div class="text-center mt-3">
             <button type="submit" class="btn btn-outline-dark btn-lg">Save</button>
-            <a th:href="'/api/languages/search/' + ${language.getId().getCountryCode()} + '/' + ${language.getCountryCode().getLanguage()}" class="btn btn-outline-danger btn-lg">Cancel</a>
+            <a th:href="'/api/languages/search/' + ${language.getId().getCountryCode()} + '/' + ${language.getId().getLanguage()}" class="btn btn-outline-danger btn-lg">Cancel</a>
         </div>
     </form>
     <form th:if="${create}" th:action="@{/api/languages/create}" method="post">

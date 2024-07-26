@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>Language Information</title>
@@ -17,7 +17,7 @@
         </div>
     </form>
 
-    <div class="d-flex mb-3">
+    <div sec:authorize="hasRole('ROLE_ADMIN')" class="d-flex mb-3">
         <form th:if="${!searchPage}" th:action="@{/api/languages/create}" method="get" class="mx-2">
             <button type="submit" class="btn btn-outline-dark btn-lg">Create</button>
         </form>
@@ -48,10 +48,10 @@
         <div>
             <a th:if="${searchPage}" th:href="@{/api/languages}" class="btn btn-outline-dark btn-lg mx-2">Back</a>
         </div>
-        <form th:if="${searchPage}" th:action="@{/api/languages/update/{countryCode}(countryCode=${language.getId().getCountryCode()})/{language}(language=${language.getId().getLanguage()}, countryCode=${language.getId().getCountryCode()})}" method="get" class="mx-2">
+        <form sec:authorize="hasRole('ROLE_ADMIN')" th:if="${searchPage}" th:action="@{'/api/languages/update/' + ${language.getId().getCountryCode()} + '/' + ${language.getId().getLanguage()}}" method="get" class="mx-2">
             <button type="submit" class="btn btn-outline-dark btn-lg">Update Language</button>
         </form>
-        <form th:if="${searchPage}" th:action="@{/api/languages/delete/{countryCode}(countryCode=${language.getId().getCountryCode()})/{language}(language=${language.getId().getLanguage()})}" method="post" class="ms-auto">
+        <form sec:authorize="hasRole('ROLE_ADMIN')" th:if="${searchPage}" th:action="@{/api/languages/delete/{countryCode}/{language}(countryCode=${language.getId().getCountryCode()}, language=${language.getId().getLanguage()})}" method="post" class="ms-auto">
             <button type="submit" class="btn btn-outline-danger btn-lg">Delete Language</button>
         </form>
     </div>

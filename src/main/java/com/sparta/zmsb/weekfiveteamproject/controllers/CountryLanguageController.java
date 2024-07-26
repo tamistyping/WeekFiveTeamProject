@@ -150,7 +150,7 @@ public class CountryLanguageController {
 
     @PostMapping("/create")
     public String createLanguagePost(@RequestParam String countryCode, @RequestParam String language,
-                                     @RequestParam String isOfficial, @RequestParam BigDecimal percentage) {
+                                     @RequestParam String official, @RequestParam BigDecimal percentage) {
         CountryEntity country = worldService.getCountry(countryCode);
         if (country == null) {
             throw new ResourceNotFoundException("Language with country code: " + countryCode + " and language: " + language + " not found");
@@ -163,7 +163,8 @@ public class CountryLanguageController {
         countrylanguageEntityId.setCountryCode(countryCode);
 
         countrylanguageEntity.setId(countrylanguageEntityId);
-        countrylanguageEntity.setIsOfficial(isOfficial);
+        countrylanguageEntity.setCountryCode(country);
+        countrylanguageEntity.setIsOfficial(official);
         countrylanguageEntity.setPercentage(percentage);
 
         worldService.createCountryLanguageEntityEntry(countrylanguageEntity);
@@ -239,7 +240,7 @@ public class CountryLanguageController {
     }
 
     @PostMapping("/update/{countryCode}/{language}")
-    public String updateLanguagePost(@PathVariable String countryCode, @PathVariable String language, @RequestParam String isOfficial, @RequestParam BigDecimal percentage) {
+    public String updateLanguagePost(@PathVariable String countryCode, @PathVariable String language, @RequestParam String official, @RequestParam BigDecimal percentage) {
         CountrylanguageEntity countrylanguageEntity = new CountrylanguageEntity();
 
         CountrylanguageEntityId cleId = new CountrylanguageEntityId();
@@ -247,7 +248,7 @@ public class CountryLanguageController {
         cleId.setLanguage(language);
 
         countrylanguageEntity.setId(cleId);
-        countrylanguageEntity.setIsOfficial(isOfficial);
+        countrylanguageEntity.setIsOfficial(official);
         countrylanguageEntity.setPercentage(percentage);
 
         worldService.updateCountryLanguageEntity(countrylanguageEntity);
